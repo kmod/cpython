@@ -179,6 +179,50 @@ PyTuple_Pack(Py_ssize_t n, ...)
     return (PyObject *)result;
 }
 
+PyObject *
+_PyTuple_Pack1(PyObject *el0) {
+    PyObject* result = PyTuple_New(1);
+    if (result == NULL)
+        return NULL;
+
+    PyObject **items = ((PyTupleObject *)result)->ob_item;
+    items[0] = el0;
+    Py_INCREF(el0);
+
+    return result;
+}
+
+PyObject *
+_PyTuple_Pack2(PyObject *el0, PyObject *el1) {
+    PyObject* result = PyTuple_New(2);
+    if (result == NULL)
+        return NULL;
+
+    PyObject **items = ((PyTupleObject *)result)->ob_item;
+    items[0] = el0;
+    Py_INCREF(el0);
+    items[1] = el1;
+    Py_INCREF(el1);
+
+    return result;
+}
+
+PyObject *
+_PyTuple_Pack3(PyObject *el0, PyObject *el1, PyObject *el2) {
+    PyObject* result = PyTuple_New(3);
+    if (result == NULL)
+        return NULL;
+
+    PyObject **items = ((PyTupleObject *)result)->ob_item;
+    items[0] = el0;
+    Py_INCREF(el0);
+    items[1] = el1;
+    Py_INCREF(el1);
+    items[2] = el2;
+    Py_INCREF(el2);
+
+    return result;
+}
 
 /* Methods */
 

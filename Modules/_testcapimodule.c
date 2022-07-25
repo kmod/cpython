@@ -2067,7 +2067,7 @@ test_set_exc_info(PyObject *self, PyObject *args)
     Py_INCREF(new_tb);
     PyErr_SetExcInfo(new_type, new_value, new_tb);
 
-    orig_exc = PyTuple_Pack(3, type ? type : Py_None, value ? value : Py_None, tb ? tb : Py_None);
+    orig_exc = PyTuple_Pack3(type ? type : Py_None, value ? value : Py_None, tb ? tb : Py_None);
     Py_XDECREF(type);
     Py_XDECREF(value);
     Py_XDECREF(tb);
@@ -2375,7 +2375,7 @@ get_date_fromtimestamp(PyObject* self, PyObject *args)
     }
 
     // Construct the argument tuple
-    if ((tsargs = PyTuple_Pack(1, ts)) == NULL) {
+    if ((tsargs = PyTuple_Pack1(ts)) == NULL) {
         return NULL;
     }
 
@@ -2405,10 +2405,10 @@ get_datetime_fromtimestamp(PyObject* self, PyObject *args)
 
     // Construct the argument tuple
     if (usetz) {
-        tsargs = PyTuple_Pack(2, ts, tzinfo);
+        tsargs = PyTuple_Pack2(ts, tzinfo);
     }
     else {
-        tsargs = PyTuple_Pack(1, ts);
+        tsargs = PyTuple_Pack1(ts);
     }
 
     if (tsargs == NULL) {
@@ -5386,7 +5386,7 @@ record_func(PyObject *obj, PyFrameObject *f, int what, PyObject *arg)
     if (line_obj == NULL) {
         goto error;
     }
-    tuple = PyTuple_Pack(3, what_obj, line_obj, arg);
+    tuple = PyTuple_Pack3(what_obj, line_obj, arg);
     if (tuple == NULL) {
         goto error;
     }
@@ -6239,7 +6239,7 @@ generic_alias_dealloc(PyGenericAliasObject *self)
 static PyObject *
 generic_alias_mro_entries(PyGenericAliasObject *self, PyObject *bases)
 {
-    return PyTuple_Pack(1, self->item);
+    return PyTuple_Pack1(self->item);
 }
 
 static PyMethodDef generic_alias_methods[] = {

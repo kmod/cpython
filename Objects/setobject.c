@@ -1952,13 +1952,13 @@ set_reduce(PySetObject *so, PyObject *Py_UNUSED(ignored))
     keys = PySequence_List((PyObject *)so);
     if (keys == NULL)
         goto done;
-    args = PyTuple_Pack(1, keys);
+    args = PyTuple_Pack1(keys);
     if (args == NULL)
         goto done;
     state = _PyObject_GetState((PyObject *)so);
     if (state == NULL)
         goto done;
-    result = PyTuple_Pack(3, Py_TYPE(so), args, state);
+    result = PyTuple_Pack3(Py_TYPE(so), args, state);
 done:
     Py_XDECREF(args);
     Py_XDECREF(keys);

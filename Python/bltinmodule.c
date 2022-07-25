@@ -2865,9 +2865,9 @@ zip_reduce(zipobject *lz, PyObject *Py_UNUSED(ignored))
 {
     /* Just recreate the zip with the internal iterator tuple */
     if (lz->strict) {
-        return PyTuple_Pack(3, Py_TYPE(lz), lz->ittuple, Py_True);
+        return PyTuple_Pack3(Py_TYPE(lz), lz->ittuple, Py_True);
     }
-    return PyTuple_Pack(2, Py_TYPE(lz), lz->ittuple);
+    return PyTuple_Pack2(Py_TYPE(lz), lz->ittuple);
 }
 
 PyDoc_STRVAR(setstate_doc, "Set state information for unpickling.");

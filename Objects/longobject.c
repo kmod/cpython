@@ -5810,7 +5810,7 @@ int_as_integer_ratio_impl(PyObject *self)
     if (numerator == NULL) {
         return NULL;
     }
-    ratio_tuple = PyTuple_Pack(2, numerator, _PyLong_GetOne());
+    ratio_tuple = PyTuple_Pack2(numerator, _PyLong_GetOne());
     Py_DECREF(numerator);
     return ratio_tuple;
 }

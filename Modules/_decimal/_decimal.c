@@ -3665,7 +3665,7 @@ dec_as_integer_ratio(PyObject *self, PyObject *args UNUSED)
         }
     }
 
-    result = PyTuple_Pack(2, numerator, denominator);
+    result = PyTuple_Pack2(numerator, denominator);
 
 
 error:
@@ -5945,22 +5945,22 @@ PyInit__decimal(void)
 
         switch (cm->flag) {
         case MPD_Float_operation:
-            base = PyTuple_Pack(2, DecimalException, PyExc_TypeError);
+            base = PyTuple_Pack2(DecimalException, PyExc_TypeError);
             break;
         case MPD_Division_by_zero:
-            base = PyTuple_Pack(2, DecimalException, PyExc_ZeroDivisionError);
+            base = PyTuple_Pack2(DecimalException, PyExc_ZeroDivisionError);
             break;
         case MPD_Overflow:
-            base = PyTuple_Pack(2, signal_map[INEXACT].ex,
-                                   signal_map[ROUNDED].ex);
+            base = PyTuple_Pack2(signal_map[INEXACT].ex,
+                                 signal_map[ROUNDED].ex);
             break;
         case MPD_Underflow:
-            base = PyTuple_Pack(3, signal_map[INEXACT].ex,
-                                   signal_map[ROUNDED].ex,
-                                   signal_map[SUBNORMAL].ex);
+            base = PyTuple_Pack3(signal_map[INEXACT].ex,
+                                 signal_map[ROUNDED].ex,
+                                 signal_map[SUBNORMAL].ex);
             break;
         default:
-            base = PyTuple_Pack(1, DecimalException);
+            base = PyTuple_Pack1(DecimalException);
             break;
         }
 
@@ -5991,10 +5991,10 @@ PyInit__decimal(void)
     for (cm = cond_map+1; cm->name != NULL; cm++) {
         PyObject *base;
         if (cm->flag == MPD_Division_undefined) {
-            base = PyTuple_Pack(2, signal_map[0].ex, PyExc_ZeroDivisionError);
+            base = PyTuple_Pack2(signal_map[0].ex, PyExc_ZeroDivisionError);
         }
         else {
-            base = PyTuple_Pack(1, signal_map[0].ex);
+            base = PyTuple_Pack1(signal_map[0].ex);
         }
         if (base == NULL) {
             goto error; /* GCOV_NOT_REACHED */

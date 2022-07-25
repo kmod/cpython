@@ -6676,7 +6676,7 @@ exception_group_match(PyObject* exc_value, PyObject *match_type,
         }
         else {
             /* naked exception - wrap it */
-            PyObject *excs = PyTuple_Pack(1, exc_value);
+            PyObject *excs = PyTuple_Pack1(exc_value);
             if (excs == NULL) {
                 return -1;
             }
@@ -6827,7 +6827,7 @@ call_exc_trace(Py_tracefunc func, PyObject *self,
     }
     _PyErr_NormalizeException(tstate, &type, &value, &orig_traceback);
     traceback = (orig_traceback != NULL) ? orig_traceback : Py_None;
-    arg = PyTuple_Pack(3, type, value, traceback);
+    arg = PyTuple_Pack3(type, value, traceback);
     if (arg == NULL) {
         _PyErr_Restore(tstate, type, value, orig_traceback);
         return;

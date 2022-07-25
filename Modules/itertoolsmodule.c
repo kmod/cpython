@@ -132,7 +132,7 @@ pairwise_next(pairwiseobject *po)
         return NULL;
     }
     /* Future optimization: Reuse the result tuple as we do in enumerate() */
-    result = PyTuple_Pack(2, old, new);
+    result = PyTuple_Pack2(old, new);
     Py_SETREF(po->old, new);
     return result;
 }
@@ -314,7 +314,7 @@ groupby_next(groupbyobject *gbo)
     if (grouper == NULL)
         return NULL;
 
-    r = PyTuple_Pack(2, gbo->currkey, grouper);
+    r = PyTuple_Pack2(gbo->currkey, grouper);
     Py_DECREF(grouper);
     return r;
 }

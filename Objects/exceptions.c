@@ -145,9 +145,9 @@ static PyObject *
 BaseException_reduce(PyBaseExceptionObject *self, PyObject *Py_UNUSED(ignored))
 {
     if (self->args && self->dict)
-        return PyTuple_Pack(3, Py_TYPE(self), self->args, self->dict);
+        return PyTuple_Pack3(Py_TYPE(self), self->args, self->dict);
     else
-        return PyTuple_Pack(2, Py_TYPE(self), self->args);
+        return PyTuple_Pack2(Py_TYPE(self), self->args);
 }
 
 /*
@@ -790,7 +790,7 @@ _PyExc_CreateExceptionGroup(const char *msg_str, PyObject *excs)
     if (!msg) {
         return NULL;
     }
-    PyObject *args = PyTuple_Pack(2, msg, excs);
+    PyObject *args = PyTuple_Pack2(msg, excs);
     Py_DECREF(msg);
     if (!args) {
         return NULL;
@@ -859,7 +859,7 @@ BaseExceptionGroup_derive(PyObject *self_, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &excs)) {
         return NULL;
     }
-    PyObject *init_args = PyTuple_Pack(2, self->msg, excs);
+    PyObject *init_args = PyTuple_Pack2(self->msg, excs);
     if (!init_args) {
         return NULL;
     }
@@ -1166,8 +1166,7 @@ BaseExceptionGroup_split(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    PyObject *result = PyTuple_Pack(
-            2,
+    PyObject *result = PyTuple_Pack2(
             split_result.match ? split_result.match : Py_None,
             split_result.rest ? split_result.rest : Py_None);
 
@@ -1430,8 +1429,8 @@ static PyObject*
 create_exception_group_class(void) {
     struct _Py_exc_state *state = get_exc_state();
 
-    PyObject *bases = PyTuple_Pack(
-        2, PyExc_BaseExceptionGroup, PyExc_Exception);
+    PyObject *bases = PyTuple_Pack2(
+        PyExc_BaseExceptionGroup, PyExc_Exception);
     if (bases == NULL) {
         return NULL;
     }
@@ -1568,9 +1567,9 @@ ImportError_reduce(PyImportErrorObject *self, PyObject *Py_UNUSED(ignored))
         return NULL;
     args = ((PyBaseExceptionObject *)self)->args;
     if (state == Py_None)
-        res = PyTuple_Pack(2, Py_TYPE(self), args);
+        res = PyTuple_Pack2(Py_TYPE(self), args);
     else
-        res = PyTuple_Pack(3, Py_TYPE(self), args, state);
+        res = PyTuple_Pack3(Py_TYPE(self), args, state);
     Py_DECREF(state);
     return res;
 }
@@ -2003,9 +2002,9 @@ OSError_reduce(PyOSErrorObject *self, PyObject *Py_UNUSED(ignored))
         Py_INCREF(args);
 
     if (self->dict)
-        res = PyTuple_Pack(3, Py_TYPE(self), args, self->dict);
+        res = PyTuple_Pack3(Py_TYPE(self), args, self->dict);
     else
-        res = PyTuple_Pack(2, Py_TYPE(self), args);
+        res = PyTuple_Pack2(Py_TYPE(self), args);
     Py_DECREF(args);
     return res;
 }

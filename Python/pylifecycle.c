@@ -1378,7 +1378,7 @@ finalize_remove_modules(PyObject *modules, int verbose)
         if (weaklist != NULL) { \
             PyObject *wr = PyWeakref_NewRef(mod, NULL); \
             if (wr) { \
-                PyObject *tup = PyTuple_Pack(2, name, wr); \
+                PyObject *tup = PyTuple_Pack2(name, wr); \
                 if (!tup || PyList_Append(weaklist, tup) < 0) { \
                     PyErr_WriteUnraisable(NULL); \
                 } \
