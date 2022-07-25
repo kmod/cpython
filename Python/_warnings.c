@@ -482,9 +482,9 @@ update_registry(PyInterpreterState *interp, PyObject *registry, PyObject *text,
     int rc;
 
     if (add_zero)
-        altkey = PyTuple_Pack(3, text, category, _PyLong_GetZero());
+        altkey = PyTuple_Pack3(text, category, _PyLong_GetZero());
     else
-        altkey = PyTuple_Pack(2, text, category);
+        altkey = PyTuple_Pack2(text, category);
 
     rc = already_warned(interp, registry, altkey, 1);
     Py_XDECREF(altkey);
@@ -682,7 +682,7 @@ warn_explicit(PyThreadState *tstate, PyObject *category, PyObject *message,
     }
 
     /* Create key. */
-    key = PyTuple_Pack(3, text, category, lineno_obj);
+    key = PyTuple_Pack3(text, category, lineno_obj);
     if (key == NULL)
         goto cleanup;
 

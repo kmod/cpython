@@ -2418,7 +2418,7 @@ delta_divmod(PyObject *left, PyObject *right)
         Py_DECREF(divmod);
         return NULL;
     }
-    result = PyTuple_Pack(2, PyTuple_GET_ITEM(divmod, 0), delta);
+    result = PyTuple_Pack2(PyTuple_GET_ITEM(divmod, 0), delta);
     Py_DECREF(delta);
     Py_DECREF(divmod);
     return result;
@@ -4710,9 +4710,9 @@ time_getstate(PyDateTime_Time *self, int proto)
             /* Set the first bit of the first byte */
             PyBytes_AS_STRING(basestate)[0] |= (1 << 7);
         if (! HASTZINFO(self) || self->tzinfo == Py_None)
-            result = PyTuple_Pack(1, basestate);
+            result = PyTuple_Pack1(basestate);
         else
-            result = PyTuple_Pack(2, basestate, self->tzinfo);
+            result = PyTuple_Pack2(basestate, self->tzinfo);
         Py_DECREF(basestate);
     }
     return result;
@@ -6503,9 +6503,9 @@ datetime_getstate(PyDateTime_DateTime *self, int proto)
             /* Set the first bit of the third byte */
             PyBytes_AS_STRING(basestate)[2] |= (1 << 7);
         if (! HASTZINFO(self) || self->tzinfo == Py_None)
-            result = PyTuple_Pack(1, basestate);
+            result = PyTuple_Pack1(basestate);
         else
-            result = PyTuple_Pack(2, basestate, self->tzinfo);
+            result = PyTuple_Pack2(basestate, self->tzinfo);
         Py_DECREF(basestate);
     }
     return result;

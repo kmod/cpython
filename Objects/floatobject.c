@@ -1627,7 +1627,7 @@ float_as_integer_ratio_impl(PyObject *self)
             goto error;
     }
 
-    result_pair = PyTuple_Pack(2, numerator, denominator);
+    result_pair = PyTuple_Pack2(numerator, denominator);
 
 error:
     Py_XDECREF(py_exponent);

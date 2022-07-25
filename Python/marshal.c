@@ -524,7 +524,7 @@ w_complex_object(PyObject *v, char flag, WFILE *p)
                 Py_DECREF(pairs);
                 return;
             }
-            PyObject *pair = PyTuple_Pack(2, dump, value);
+            PyObject *pair = PyTuple_Pack2(dump, value);
             Py_DECREF(dump);
             if (pair == NULL) {
                 p->error = WFERR_NOMEMORY;

@@ -614,18 +614,16 @@ slice_richcompare(PyObject *v, PyObject *w, int op)
     }
 
 
-    PyObject *t1 = PyTuple_Pack(3,
-                                ((PySliceObject *)v)->start,
-                                ((PySliceObject *)v)->stop,
-                                ((PySliceObject *)v)->step);
+    PyObject *t1 = PyTuple_Pack3(((PySliceObject *)v)->start,
+                                 ((PySliceObject *)v)->stop,
+                                 ((PySliceObject *)v)->step);
     if (t1 == NULL) {
         return NULL;
     }
 
-    PyObject *t2 = PyTuple_Pack(3,
-                                ((PySliceObject *)w)->start,
-                                ((PySliceObject *)w)->stop,
-                                ((PySliceObject *)w)->step);
+    PyObject *t2 = PyTuple_Pack3(((PySliceObject *)w)->start,
+                                 ((PySliceObject *)w)->stop,
+                                 ((PySliceObject *)w)->step);
     if (t2 == NULL) {
         Py_DECREF(t1);
         return NULL;

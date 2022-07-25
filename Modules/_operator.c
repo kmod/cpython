@@ -1145,7 +1145,7 @@ itemgetter_reduce(itemgetterobject *ig, PyObject *Py_UNUSED(ignored))
 {
     if (ig->nitems == 1)
         return Py_BuildValue("O(O)", Py_TYPE(ig), ig->item);
-    return PyTuple_Pack(2, Py_TYPE(ig), ig->item);
+    return PyTuple_Pack2(Py_TYPE(ig), ig->item);
 }
 
 PyDoc_STRVAR(reduce_doc, "Return state information for pickling");

@@ -449,7 +449,7 @@ _PyImport_FixupExtensionObject(PyObject *mod, PyObject *name,
             }
         }
 
-        PyObject *key = PyTuple_Pack(2, filename, name);
+        PyObject *key = PyTuple_Pack2(filename, name);
         if (key == NULL) {
             return -1;
         }
@@ -484,7 +484,7 @@ import_find_extension(PyThreadState *tstate, PyObject *name,
         return NULL;
     }
 
-    PyObject *key = PyTuple_Pack(2, filename, name);
+    PyObject *key = PyTuple_Pack2(filename, name);
     if (key == NULL) {
         return NULL;
     }
@@ -2145,9 +2145,9 @@ _imp_find_frozen_impl(PyObject *module, PyObject *name, int withdata)
         }
     }
 
-    PyObject *result = PyTuple_Pack(3, data ? data : Py_None,
-                                    info.is_package ? Py_True : Py_False,
-                                    origname ? origname : Py_None);
+    PyObject *result = PyTuple_Pack3(data ? data : Py_None,
+                                     info.is_package ? Py_True : Py_False,
+                                     origname ? origname : Py_None);
     Py_XDECREF(origname);
     Py_XDECREF(data);
     return result;

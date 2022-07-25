@@ -1087,7 +1087,7 @@ pattern_subx(_sremodulestate* module_state,
             /* not a literal; hand it over to the template compiler */
             filter = call(
                 SRE_PY_MODULE, "_subx",
-                PyTuple_Pack(2, self, ptemplate)
+                PyTuple_Pack2(self, ptemplate)
                 );
             if (!filter)
                 return NULL;
@@ -2099,7 +2099,7 @@ _sre_SRE_Match_expand_impl(MatchObject *self, PyObject *template)
     /* delegate to Python code */
     return call(
         SRE_PY_MODULE, "_expand",
-        PyTuple_Pack(3, self->pattern, self, template)
+        PyTuple_Pack3(self->pattern, self, template)
         );
 }
 

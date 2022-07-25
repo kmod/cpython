@@ -196,7 +196,7 @@ void
 _PyErr_SetKeyError(PyObject *arg)
 {
     PyThreadState *tstate = _PyThreadState_GET();
-    PyObject *tup = PyTuple_Pack(1, arg);
+    PyObject *tup = PyTuple_Pack1(arg);
     if (!tup) {
         /* caller will expect error to be set anyway */
         return;
@@ -1148,7 +1148,7 @@ PyErr_NewException(const char *name, PyObject *base, PyObject *dict)
         /* INCREF as we create a new ref in the else branch */
         Py_INCREF(bases);
     } else {
-        bases = PyTuple_Pack(1, base);
+        bases = PyTuple_Pack1(base);
         if (bases == NULL)
             goto failure;
     }

@@ -734,7 +734,7 @@ _parse_object_unicode(PyScannerObject *s, PyObject *pystr, Py_ssize_t idx, Py_ss
                 goto bail;
 
             if (has_pairs_hook) {
-                PyObject *item = PyTuple_Pack(2, key, val);
+                PyObject *item = PyTuple_Pack2(key, val);
                 if (item == NULL)
                     goto bail;
                 Py_CLEAR(key);

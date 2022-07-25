@@ -2897,7 +2897,7 @@ sock_accept(PySocketSockObject *s, PyObject *Py_UNUSED(ignored))
     if (addr == NULL)
         goto finally;
 
-    res = PyTuple_Pack(2, sock, addr);
+    res = PyTuple_Pack2(sock, addr);
 
 finally:
     Py_XDECREF(sock);
@@ -3867,7 +3867,7 @@ sock_recvfrom(PySocketSockObject *s, PyObject *args)
             goto finally;
     }
 
-    ret = PyTuple_Pack(2, buf, addr);
+    ret = PyTuple_Pack2(buf, addr);
 
 finally:
     Py_XDECREF(buf);
@@ -6268,7 +6268,7 @@ socket_socketpair(PyObject *self, PyObject *args)
     s1 = new_sockobject(sv[1], family, type, proto);
     if (s1 == NULL)
         goto finally;
-    res = PyTuple_Pack(2, s0, s1);
+    res = PyTuple_Pack2(s0, s1);
 
 finally:
     if (res == NULL) {

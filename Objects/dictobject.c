@@ -3944,7 +3944,7 @@ dictiter_new(PyDictObject *dict, PyTypeObject *itertype)
     }
     if (itertype == &PyDictIterItem_Type ||
         itertype == &PyDictRevIterItem_Type) {
-        di->di_result = PyTuple_Pack(2, Py_None, Py_None);
+        di->di_result = PyTuple_Pack2(Py_None, Py_None);
         if (di->di_result == NULL) {
             Py_DECREF(di);
             return NULL;
@@ -4905,7 +4905,7 @@ dictitems_xor(PyObject *self, PyObject *other)
             }
         }
         else {
-            PyObject *pair = PyTuple_Pack(2, key, val2);
+            PyObject *pair = PyTuple_Pack2(key, val2);
             if (pair == NULL) {
                 goto error;
             }
