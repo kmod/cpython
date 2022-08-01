@@ -804,6 +804,14 @@ PyAPI_FUNC(void) PyUnicode_AppendAndDel(
     PyObject *right             /* Right string */
     );
 
+/* Concat three strings giving a new Unicode string. */
+
+PyAPI_FUNC(PyObject*) PyUnicode_Concat3(
+    PyObject *s1,
+    PyObject *s2,
+    PyObject *s3
+    );
+
 /* Split a string giving a list of Unicode strings.
 
    If sep is NULL, splitting will be done at all whitespace

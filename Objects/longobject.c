@@ -2,6 +2,8 @@
 
 /* XXX The functional organization of this file is terrible */
 
+#define NEEDS_PY_IDENTIFIER
+
 #include "Python.h"
 #include "pycore_bitutils.h"      // _Py_popcount32()
 #include "pycore_initconfig.h"    // _PyStatus_OK()
@@ -2616,10 +2618,54 @@ digit beyond the first.
     if (strobj == NULL) {
         return NULL;
     }
-    PyErr_Format(PyExc_ValueError,
-                 "invalid literal for int() with base %d: %.200R",
-                 base, strobj);
+
+    _Py_static_string(PyId_message, "invalid literal for int() with base ");
+    _Py_static_string(PyId_colonspace, ": ");
+    //_Py_static_string(PyId_ten, "10");
+
+    PyObject* message = _PyUnicode_FromId(&PyId_message); // borrowed
+    if (!message)
+        return NULL;
+    PyObject* colonspace = _PyUnicode_FromId(&PyId_colonspace); // borrowed
+    if (!colonspace)
+        return NULL;
+
+    // TODO: base is usually 10
+#define MAX_LONG_LONG_CHARS (2 + (SIZEOF_LONG_LONG*53-1) / 22)
+    char buffer[MAX_LONG_LONG_CHARS];
+    Py_ssize_t len = sprintf(buffer, "%i", base);
+    PyObject* base_str = PyUnicode_DecodeUTF8Stateful(buffer, len, "replace", NULL);
+    if (!base_str)
+        return NULL;
+
+    PyObject* first = PyUnicode_Concat3(message, base_str, colonspace);
+    Py_DECREF(base_str);
+    if (!first)
+        return NULL;
+
+    PyObject* strobj_repr = PyObject_Repr(strobj);
     Py_DECREF(strobj);
+    if (!strobj_repr) {
+        Py_DECREF(first);
+        return NULL;
+    }
+
+    PyObject* strobj_repr_truncated = PyUnicode_Substring(strobj_repr, 0, 200);
+    Py_DECREF(strobj_repr);
+    if (!strobj_repr_truncated) {
+        Py_DECREF(first);
+        return NULL;
+    }
+
+    PyObject* err = PyUnicode_Concat(first, strobj_repr_truncated);
+    Py_DECREF(first);
+    Py_DECREF(strobj_repr_truncated);
+    if (!err)
+        return NULL;
+
+    PyErr_SetObject(PyExc_ValueError, err);
+    Py_DECREF(err);
+
     return NULL;
 }
 

@@ -10826,6 +10826,71 @@ PyUnicode_AppendAndDel(PyObject **pleft, PyObject *right)
     Py_XDECREF(right);
 }
 
+PyObject *
+PyUnicode_Concat3(PyObject *s1, PyObject *s2, PyObject *s3)
+{
+    PyObject *result;
+    Py_UCS4 maxchar, maxchar2;
+    Py_ssize_t s1_len, s2_len, s3_len, new_len;
+
+    if (ensure_unicode(s1) < 0)
+        return NULL;
+
+    if (!PyUnicode_Check(s2)) {
+        PyErr_Format(PyExc_TypeError,
+                     "can only concatenate str (not \"%.200s\") to str",
+                     s2->ob_type->tp_name);
+        return NULL;
+    }
+    if (PyUnicode_READY(s2) < 0)
+        return NULL;
+
+    if (!PyUnicode_Check(s3)) {
+        PyErr_Format(PyExc_TypeError,
+                     "can only concatenate str (not \"%.200s\") to str",
+                     s3->ob_type->tp_name);
+        return NULL;
+    }
+    if (PyUnicode_READY(s3) < 0)
+        return NULL;
+
+    /* Shortcuts */
+    PyObject *empty = unicode_get_empty();  // Borrowed reference
+    if (s1 == empty)
+        return PyUnicode_Concat(s2, s3);
+    if (s2 == empty)
+        return PyUnicode_Concat(s1, s3);
+    if (s3 == empty)
+        return PyUnicode_Concat(s1, s2);
+
+    s1_len = PyUnicode_GET_LENGTH(s1);
+    s2_len = PyUnicode_GET_LENGTH(s2);
+    s3_len = PyUnicode_GET_LENGTH(s3);
+    // First check that s2+s3 doesn't overflow, then check s1+(s2+s3) doesn't overflow
+    if (s2_len > PY_SSIZE_T_MAX - s3_len || s1_len > PY_SSIZE_T_MAX - s2_len - s3_len) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "strings are too large to concat");
+        return NULL;
+    }
+    new_len = s1_len + s2_len + s3_len;
+
+    maxchar = PyUnicode_MAX_CHAR_VALUE(s1);
+    maxchar2 = PyUnicode_MAX_CHAR_VALUE(s2);
+    maxchar = Py_MAX(maxchar, maxchar2);
+    maxchar2 = PyUnicode_MAX_CHAR_VALUE(s3);
+    maxchar = Py_MAX(maxchar, maxchar2);
+
+    /* Concat the Unicode strings */
+    result = PyUnicode_New(new_len, maxchar);
+    if (result == NULL)
+        return NULL;
+    _PyUnicode_FastCopyCharacters(result, 0, s1, 0, s1_len);
+    _PyUnicode_FastCopyCharacters(result, s1_len, s2, 0, s2_len);
+    _PyUnicode_FastCopyCharacters(result, s1_len + s2_len, s3, 0, s3_len);
+    assert(_PyUnicode_CheckConsistency(result, 1));
+    return result;
+}
+
 /*
 Wraps asciilib_parse_args_finds() and additionally ensures that the
 first argument is a unicode object.
