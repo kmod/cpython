@@ -315,6 +315,8 @@ COVERAGE_REPORT=$(abs_builddir)/lcov-report
 COVERAGE_LCOV_OPTIONS=--rc lcov_branch_coverage=1
 COVERAGE_REPORT_OPTIONS=--rc lcov_branch_coverage=1 --branch-coverage --title "CPython $(VERSION) LCOV report [commit $(shell $(GITVERSION))]"
 
+CFLAGS_NODIST:=$(CFLAGS_NODIST) -fno-reorder-blocks-and-partition
+LDFLAGS_NODIST:=$(LDFLAGS_NODIST) -Wl,--emit-relocs
 
 # === Definitions added by makesetup ===
 
@@ -640,6 +642,13 @@ profile-opt: profile-run-stamp
 	@echo "Rebuilding with profile guided optimizations:"
 	-rm -f profile-clean-stamp
 	$(MAKE) @DEF_MAKE_RULE@ CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
+
+bolt:
+	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(BUILDPYTHON).bolt -o $(BUILDPYTHON).bolt_inst -skip-funcs="va_build_stack.*,optimize_cfg.*,do_mktuple.*" -jump-tables=none
+	./$(BUILDPYTHON).bolt_inst $(PROFILE_TASK)
+	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
+	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
 # Compile and run with gcov
 .PHONY=coverage coverage-lcov coverage-report
