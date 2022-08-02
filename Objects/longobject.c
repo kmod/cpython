@@ -2683,6 +2683,8 @@ _PyLong_FromBytes(const char *s, Py_ssize_t len, int base)
     result = PyLong_FromString(s, &end, base);
     if (end == NULL || (result != NULL && end == s + len))
         return result;
+    if (!result)
+        return NULL;
     Py_XDECREF(result);
     strobj = PyBytes_FromStringAndSize(s, Py_MIN(len, 200));
     if (strobj != NULL) {
@@ -2716,6 +2718,8 @@ PyLong_FromUnicodeObject(PyObject *u, int base)
         return result;
     }
     Py_DECREF(asciidig);
+    if (!result)
+        return NULL;
     Py_XDECREF(result);
     PyErr_Format(PyExc_ValueError,
                  "invalid literal for int() with base %d: %.200R",
