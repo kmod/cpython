@@ -1,6 +1,8 @@
 
 /* Module object implementation */
 
+#define NEEDS_PY_IDENTIFIER
+
 #include "Python.h"
 #include "pycore_call.h"          // _PyObject_CallNoArgs()
 #include "pycore_interp.h"        // PyInterpreterState.importlib
@@ -794,9 +796,30 @@ module_getattro(PyModuleObject *m, PyObject *name)
                             name, mod_name);
         }
         else {
-            PyErr_Format(PyExc_AttributeError,
-                            "module '%U' has no attribute '%U'",
-                            mod_name, name);
+            _Py_static_string(PyId_module, "module '");
+            _Py_static_string(PyId_hasno, "' has no attribute '");
+            _Py_static_string(PyId_quote, "'");
+
+            PyObject* module = _PyUnicode_FromId(&PyId_module);
+            if (!module)
+                return NULL;
+            PyObject* hasno = _PyUnicode_FromId(&PyId_hasno);
+            if (!hasno)
+                return NULL;
+            PyObject* quote = _PyUnicode_FromId(&PyId_quote);
+            if (!quote)
+                return NULL;
+
+            PyObject* first = PyUnicode_Concat3(module, mod_name, hasno);
+            if (!first)
+                return NULL;
+
+            PyObject* err = PyUnicode_Concat3(first, name, quote);
+            if (!err)
+                return NULL;
+
+            PyErr_SetObject(PyExc_AttributeError, err);
+            Py_DECREF(err);
         }
         Py_XDECREF(spec);
         Py_DECREF(mod_name);
