@@ -1,5 +1,7 @@
 /* Module definition and import implementation */
 
+#define NEEDS_PY_IDENTIFIER
+
 #include "Python.h"
 
 #include "pycore_import.h"        // _PyImport_BootstrapImp()
@@ -1665,7 +1667,9 @@ resolve_name(PyThreadState *tstate, PyObject *name, PyObject *globals, int level
         return base;
     }
 
-    abs_name = PyUnicode_FromFormat("%U.%U", base, name);
+    _Py_static_string(PyId_dot, ".");
+    PyObject *dot = _PyUnicode_FromId(&PyId_dot); /* borrowed */
+    abs_name = PyUnicode_Concat3(base, dot, name);
     Py_DECREF(base);
     return abs_name;
 
