@@ -1,6 +1,8 @@
 
 /* Generic object operations; and implementation of None */
 
+#define NEEDS_PY_IDENTIFIER
+
 #include "Python.h"
 #include "pycore_call.h"          // _PyObject_CallNoArgs()
 #include "pycore_ceval.h"         // _Py_EnterRecursiveCallTstate()
@@ -1349,9 +1351,32 @@ _PyObject_GenericGetAttrWithDict(PyObject *obj, PyObject *name,
     }
 
     if (!suppress) {
-        PyErr_Format(PyExc_AttributeError,
-                     "'%.50s' object has no attribute '%U'",
-                     tp->tp_name, name);
+        _Py_static_string(PyId_quote, "'");
+        _Py_static_string(PyId_message, "' object has no attribute '");
+
+        size_t length = Py_MIN(strlen(tp->tp_name), 50);
+        PyObject* tp_name = PyUnicode_DecodeUTF8Stateful(tp->tp_name, length, "replace", NULL);
+        if (!tp_name)
+            goto done;
+
+        PyObject* quote = _PyUnicode_FromId(&PyId_quote); // borrowed
+        if (!quote)
+            goto done;
+        PyObject* message = _PyUnicode_FromId(&PyId_message); // borrowed
+        if (!message)
+            goto done;
+
+        PyObject* first = PyUnicode_Concat3(quote, tp_name, message);
+        Py_DECREF(tp_name);
+        if (!first)
+            goto done;
+        PyObject* err = PyUnicode_Concat3(first, name, quote);
+        Py_DECREF(first);
+        if (!err)
+            goto done;
+
+        PyErr_SetObject(PyExc_AttributeError, err);
+        Py_DECREF(err);
     }
   done:
     Py_XDECREF(descr);
