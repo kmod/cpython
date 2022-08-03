@@ -645,7 +645,7 @@ profile-opt: profile-run-stamp
 
 bolt:
 	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(BUILDPYTHON).bolt -o $(BUILDPYTHON).bolt_inst
-	./$(BUILDPYTHON).bolt_inst $(PROFILE_TASK)
+	./$(BUILDPYTHON).bolt_inst $(PROFILE_TASK) || true
 	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
 	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
