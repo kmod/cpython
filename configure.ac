@@ -3148,8 +3148,8 @@ then
 		LDSHARED='$(CC) -shared'
 		LDCXXSHARED='$(CXX) -shared';;
 	Linux*|GNU*|QNX*|VxWorks*|Haiku*)
-		LDSHARED='$(CC) -shared'
-		LDCXXSHARED='$(CXX) -shared';;
+		LDSHARED='$(CC) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
+		LDCXXSHARED='$(CXX) -shared -Wl,-O1 -Wl,-Bsymbolic-functions';;
 	FreeBSD*)
 		if [[ "`$CC -dM -E - </dev/null | grep __ELF__`" != "" ]]
 		then
@@ -3262,7 +3262,7 @@ then
 	    LINKFORSHARED="-Wl,-E -Wl,+s";;
 #	    LINKFORSHARED="-Wl,-E -Wl,+s -Wl,+b\$(BINLIBDEST)/lib-dynload";;
 	Linux-android*) LINKFORSHARED="-pie -Xlinker -export-dynamic";;
-	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
+	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions";;
 	# -u libsys_s pulls in all symbols in libsys
 	Darwin/*)
 		LINKFORSHARED="$extra_undefs -framework CoreFoundation"

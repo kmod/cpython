@@ -315,6 +315,9 @@ COVERAGE_REPORT=$(abs_builddir)/lcov-report
 COVERAGE_LCOV_OPTIONS=--rc lcov_branch_coverage=1
 COVERAGE_REPORT_OPTIONS=--rc lcov_branch_coverage=1 --branch-coverage --title "CPython $(VERSION) LCOV report [commit $(shell $(GITVERSION))]"
 
+CFLAGS_NODIST:=$(CFLAGS_NODIST) -specs=/home/kmod/pyston/pyston/tools/no-pie-compile.specs
+LDFLAGS_NODIST:=$(LDFLAGS_NODIST) -specs=/home/kmod/pyston/pyston/tools/no-pie-link.specs -Wl,-z,relro
+
 CFLAGS_NODIST:=$(CFLAGS_NODIST) -fno-reorder-blocks-and-partition
 LDFLAGS_NODIST:=$(LDFLAGS_NODIST) -Wl,--emit-relocs
 
@@ -649,7 +652,7 @@ bolt:
 	/tmp/bolt_env/bin/pip install -r /home/kmod/pyston/pyston/pgo_requirements.txt
 	/tmp/bolt_env/bin/python3 /home/kmod/pyston/pyston/run_profile_task.py
 	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
-	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack -frame-opt=hot
 	mv $(BUILDPYTHON) $(BUILDPYTHON).nobolt
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
