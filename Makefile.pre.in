@@ -656,6 +656,12 @@ bolt_perf:
 	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
+bolt_perf2:
+	perf record -e cycles:u -j any,u -- ./$(BUILDPYTHON) $(PROFILE_TASK)
+	perf2bolt -p perf.data -o perf.fdata $(BUILDPYTHON) -jump-tables=none
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
+	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
+
 # Compile and run with gcov
 .PHONY=coverage coverage-lcov coverage-report
 coverage:
