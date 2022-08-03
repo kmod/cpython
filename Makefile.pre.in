@@ -647,6 +647,7 @@ profile-opt: profile-run-stamp
 	$(MAKE) @DEF_MAKE_RULE@ CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
 
 bolt:
+	rm -f *.fdata
 	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(BUILDPYTHON).bolt -o $(BUILDPYTHON).bolt_inst
 	./$(BUILDPYTHON).bolt_inst -m venv /tmp/bolt_env
 	/tmp/bolt_env/bin/pip install -r /home/kmod/pyston/pyston/pgo_requirements.txt
