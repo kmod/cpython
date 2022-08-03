@@ -644,7 +644,7 @@ profile-opt: profile-run-stamp
 	$(MAKE) @DEF_MAKE_RULE@ CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
 
 bolt:
-	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(BUILDPYTHON).bolt -o $(BUILDPYTHON).bolt_inst -skip-funcs="va_build_stack.*,optimize_cfg.*,do_mktuple.*" -jump-tables=none
+	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(BUILDPYTHON).bolt -o $(BUILDPYTHON).bolt_inst
 	./$(BUILDPYTHON).bolt_inst $(PROFILE_TASK)
 	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
 	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
