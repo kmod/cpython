@@ -649,20 +649,20 @@ bolt:
 	/tmp/bolt_env/bin/pip install -r /home/kmod/pyston/pyston/pgo_requirements.txt
 	/tmp/bolt_env/bin/python3 /home/kmod/pyston/pyston/run_profile_task.py
 	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
-	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
 	mv $(BUILDPYTHON) $(BUILDPYTHON).nobolt
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
 bolt_perf:
 	perf record -e cycles:u -j any,u -- ./$(BUILDPYTHON) $(PROFILE_TASK)
 	perf2bolt -p perf.data -o perf.fdata $(BUILDPYTHON)
-	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
 bolt_perf2:
 	perf record -e cycles:u -j any,u -- ./$(BUILDPYTHON) $(PROFILE_TASK)
 	perf2bolt -p perf.data -o perf.fdata $(BUILDPYTHON) -jump-tables=none
-	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=cache+ -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
 # Compile and run with gcov
