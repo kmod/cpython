@@ -14,12 +14,12 @@ ifeq ($(LLVM_LINK),)
 $(error "Please install the llvm toolchain")
 endif
 else
-BOLT:=$(abspath build/bolt/bin/llvm-bolt)
-CLANG:=$(abspath build/Release/llvm/bin/clang)
-LLVM_LINK:=$(abspath build/Release/llvm/bin/llvm-link)
-LLVM_PROFDATA:=$(abspath build/Release/llvm/bin/llvm-profdata)
-MERGE_FDATA:=$(abspath build/bolt/bin/merge-fdata)
-PERF2BOLT:=$(abspath build/bolt/bin/perf2bolt)
+BOLT:=$(abspath /home/kmod/pyston2/build/bolt/bin/llvm-bolt)
+CLANG:=$(abspath /home/kmod/pyston2/build/Release/llvm/bin/clang)
+LLVM_LINK:=$(abspath /home/kmod/pyston2/build/Release/llvm/bin/llvm-link)
+LLVM_PROFDATA:=$(abspath /home/kmod/pyston2/build/Release/llvm/bin/llvm-profdata)
+MERGE_FDATA:=$(abspath /home/kmod/pyston2/build/bolt/bin/merge-fdata)
+PERF2BOLT:=$(abspath /home/kmod/pyston2/build/bolt/bin/perf2bolt)
 RELEASE:=$(shell lsb_release -sr)
 endif
 
@@ -52,11 +52,6 @@ tune: build/system_env/bin/python
 tune_reset: build/system_env/bin/python
 	PYTHONPATH=pyston/tools build/system_env/bin/python -c "import tune; tune.untune()"
 
-build/Release/Makefile:
-	mkdir -p build/Release
-	@# Use gold linker since ld 2.32 (Ubuntu 19.04) is unable to link compiler-rt:
-	cd build/Release; CC=clang CXX=clang++ cmake ../../pyston/ -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=gold -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" -DCLANG_INCLUDE_TESTS=0 -DCOMPILER_RT_INCLUDE_TESTS=0 -DLLVM_INCLUDE_TESTS=0 -DCOMPILER_RT_BUILD_SANITIZERS=0
-
 build/PartialDebug/Makefile:
 	mkdir -p build/PartialDebug
 	cd build/PartialDebug; CC=clang CXX=clang++ cmake ../../pyston/ -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=PartialDebug -DLLVM_ENABLE_PROJECTS=clang -DCLANG_INCLUDE_TESTS=0 -DCOMPILER_RT_INCLUDE_TESTS=0 -DLLVM_INCLUDE_TESTS=0 -DCOMPILER_RT_BUILD_SANITIZERS=0
@@ -65,43 +60,9 @@ build/Debug/Makefile:
 	mkdir -p build/Debug
 	cd build/Debug; CC=clang CXX=clang++ cmake ../../pyston/ -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DLLVM_ENABLE_PROJECTS=clang -DCLANG_INCLUDE_TESTS=0 -DCOMPILER_RT_INCLUDE_TESTS=0 -DLLVM_INCLUDE_TESTS=0 -DCOMPILER_RT_BUILD_SANITIZERS=0
 
-.PHONY: build_release build_dbg build_debug
-build_dbg: build/PartialDebug/Makefile build/bc_env/bin/python
-	cd build/PartialDebug; $(MAKE) interp pystol
-build_debug: build/Debug/Makefile build/bc_env/bin/python
-	cd build/Debug; $(MAKE) interp pystol
-
-# The "%"s here are to force make to consider these as group targets and not run this target multiple times
-build/Release/nitrous/libinterp%so build/Release/pystol/libpystol%so: build/Release/Makefile build/bc_env/bin/python $(wildcard pyston/nitrous/*.cpp) $(wildcard pyston/nitrous/*.h) $(wildcard pyston/pystol/*.cpp) $(wildcard pyston/pystol/*.h)
-	cd build/Release; $(MAKE) interp pystol
-	@# touch them since our dependencies in this makefile are not 100% correct, and they might not have gotten rebuilt:
-	touch build/Release/nitrous/libinterp.so build/Release/pystol/libpystol.so
-build_release:
-	$(MAKE) build/Release/nitrous/libinterp.so build/Release/pystol/libpystol.so
-
-LLVM_TOOLS:=$(CLANG)
-.PHONY: clang
-clang $(CLANG): | build/Release/Makefile
-ifneq ($(PYSTON_USE_SYS_BINS),1)
-	cd build/Release; $(MAKE) clang llvm-dis llvm-as llvm-link opt compiler-rt llvm-profdata
-endif
-
-
-bolt: $(BOLT)
-ifeq ($(PYSTON_USE_SYS_BINS),1)
-$(BOLT):
-	# nothing todo
-else
-build/bolt/Makefile:
-	mkdir -p build/bolt
-	cd build/bolt; cmake -G "Unix Makefiles" ../../pyston/bolt/llvm -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_INCLUDE_TESTS=0 -DLLVM_ENABLE_PROJECTS="clang;lld;bolt"
-$(BOLT): build/bolt/Makefile
-	cd build/bolt; $(MAKE) llvm-bolt merge-fdata perf2bolt
-endif
-
 # this flags are what the default debian/ubuntu cpython uses
-CPYTHON_EXTRA_CFLAGS:=-fstack-protector -specs=$(CURDIR)/pyston/tools/no-pie-compile.specs -D_FORTIFY_SOURCE=2
-CPYTHON_EXTRA_LDFLAGS:=-specs=$(CURDIR)/pyston/tools/no-pie-link.specs -Wl,-z,relro
+CPYTHON_EXTRA_CFLAGS:=-fstack-protector -specs=/home/kmod/pyston/pyston/tools/no-pie-compile.specs -D_FORTIFY_SOURCE=2
+CPYTHON_EXTRA_LDFLAGS:=-specs=/home/kmod/pyston/pyston/tools/no-pie-link.specs -Wl,-z,relro
 
 PROFILE_TASK_MULTIPROCESS:=-j 0
 ifeq ($(ARCH),aarch64)
@@ -111,25 +72,12 @@ endif
 PROFILE_TASK:=../../Lib/test/regrtest.py $(PROFILE_TASK_MULTIPROCESS) -unone,decimal -x test_posix test_asyncio test_cmd_line_script test_compiler test_concurrent_futures test_ctypes test_dbm_dumb test_dbm_ndbm test_distutils test_ensurepip test_ftplib test_gdb test_httplib test_imaplib test_ioctl test_linuxaudiodev test_multiprocessing test_nntplib test_ossaudiodev test_poplib test_pydoc test_signal test_socket test_socketserver test_ssl test_subprocess test_sundry test_thread test_threaded_import test_threadedtempfile test_threading test_threading_local test_threadsignals test_venv test_zipimport_support || true
 
 MAKEFILE_DEPENDENCIES:=Makefile.pre.in configure
-build/bc_build/Makefile: $(CLANG) $(MAKEFILE_DEPENDENCIES)
-	mkdir -p build/bc_build
-	cd build/bc_build; WRAPPER_REALCC=$(realpath $(CLANG)) WRAPPER_OUTPUT_PREFIX=../cpython_bc CC=../../pyston/clang_wrapper.py CFLAGS_NODIST="$(CPYTHON_EXTRA_CFLAGS) -Wno-unused-command-line-argument" LDFLAGS_NODIST="$(CPYTHON_EXTRA_LDFLAGS)" ../../configure --prefix=/usr --disable-aot --disable-debugging-features --enable-configure $(CONFIGURE_EXTRA_FLAGS)
-
-build/bc_build/pyston: build/bc_build/Makefile $(filter-out $(wildcard Python/aot*.c),$(wildcard */*.c)) $(wildcard */*.h)
-	cd build/bc_build; WRAPPER_REALCC=$(realpath $(CLANG)) WRAPPER_OUTPUT_PREFIX=../cpython_bc $(MAKE)
-	touch $@ # some cpython .c files don't affect the python executable
-
-build/bc_install/usr/bin/python3: build/bc_build/pyston
-	cd build/bc_build; WRAPPER_REALCC=$(realpath $(CLANG)) WRAPPER_OUTPUT_PREFIX=../cpython_bc $(MAKE) install DESTDIR=$(abspath build/bc_install)
 
 VIRTUALENV:=build/bootstrap_env/bin/virtualenv
 $(VIRTUALENV):
 	virtualenv -p python3 build/bootstrap_env
 	build/bootstrap_env/bin/pip install virtualenv
 
-build/bc_env/bin/python: build/bc_install/usr/bin/python3 | $(VIRTUALENV)
-	$(VIRTUALENV) -p $< build/bc_env
-bc: build/bc_env/bin/python
 build/system_env/bin/python: | $(VIRTUALENV)
 	$(VIRTUALENV) -p python$(PYTHON_MAJOR).$(PYTHON_MINOR) build/system_env
 	build/system_env/bin/pip install six pyperf cython || (rm -rf build/system_env; false)
@@ -157,7 +105,7 @@ build/$(1)_build/Makefile: $(MAKEFILE_DEPENDENCIES)
 	mkdir -p build/$(1)_build
 	cd build/$(1)_build; $(2)
 
-build/$(1)_build/pyston: build/$(1)_build/Makefile $(wildcard */*.c) $(wildcard */*.h) $(3)
+build/$(1)_build/pyston: build/$(1)_build/Makefile $(wildcard */*.c) $(wildcard */*.h)
 	cd build/$(1)_build; CLANG=$(CLANG) LLVM_PROFDATA=$(LLVM_PROFDATA) $$(MAKE)
 	touch $$@ # some cpython .c files don't affect the python executable
 
@@ -173,8 +121,8 @@ build/$(1)_install$(_PREFIX)/bin/python3.bolt.fdata: build/$(1)_install$(_PREFIX
 	rm $$<.bolt*.fdata || true
 	$(BOLT) $$< -instrument -instrumentation-file-append-pid -instrumentation-file=$$(abspath build/$(1)_install$(_PREFIX)/bin/python3.bolt) -o $$<.bolt_inst
 	$(VIRTUALENV) -p $$<.bolt_inst /tmp/tmp_env_$(1)
-	/tmp/tmp_env_$(1)/bin/pip install -r pyston/pgo_requirements.txt
-	/tmp/tmp_env_$(1)/bin/python3 pyston/run_profile_task.py
+	/tmp/tmp_env_$(1)/bin/pip install -r /home/kmod/pyston/pyston/pgo_requirements.txt
+	/tmp/tmp_env_$(1)/bin/python3 /home/kmod/pyston/pyston/run_profile_task.py
 	$(MERGE_FDATA) $$<.*.fdata > $$@
 
 build/$(1)_install$(_PREFIX)/bin/python3.bolt: build/$(1)_install$(_PREFIX)/bin/python3.bolt.fdata
@@ -204,7 +152,7 @@ build/$(1)_install$(_PREFIX)/lib/libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston
 	rm -rf /tmp/tmp_env_$(1)
 	$(BOLT) $$(abspath build/$(1)_install$(_PREFIX)/lib)/libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.prebolt -instrument -instrumentation-file-append-pid -instrumentation-file=$$(abspath build/$(1)_install$(_PREFIX)/lib)/libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0 -o $$(abspath build/$(1)_install$(_PREFIX)/lib)/libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.bolt_inst -skip-funcs="_PyEval_EvalFrameDefault,_PyEval_EvalFrame_AOT_Interpreter.*"
 	LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:$$(abspath build/$(1)_install$(_PREFIX)/lib) LD_PRELOAD=libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.bolt_inst $(VIRTUALENV) -p $$< /tmp/tmp_env_$(1)
-	LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:$$(abspath build/$(1)_install$(_PREFIX)/lib) LD_PRELOAD=libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.bolt_inst /tmp/tmp_env_$(1)/bin/pip install -r pyston/pgo_requirements.txt
+	LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:$$(abspath build/$(1)_install$(_PREFIX)/lib) LD_PRELOAD=libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.bolt_inst /tmp/tmp_env_$(1)/bin/pip install -r /home/kmod/pyston/pyston/pgo_requirements.txt
 	LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:$$(abspath build/$(1)_install$(_PREFIX)/lib) LD_PRELOAD=libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.bolt_inst /tmp/tmp_env_$(1)/bin/python3 pyston/run_profile_task.py
 	$(MERGE_FDATA) $$(abspath build/$(1)_install$(_PREFIX)/lib)/libpython$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR).so.1.0.*.fdata > $$@
 
@@ -309,65 +257,7 @@ $(call combine_builds,opt,/usr)
 $(call combine_builds,release,$(RELEASE_PREFIX))
 $(call combine_builds,dbg,/usr)
 
-.PHONY: cpython
-cpython: build/bc_env/bin/python build/unopt_env/bin/python build/opt_env/bin/python
-
-
-
-%.ll: %.bc $(LLVM_TOOLS)
-	build/Release/llvm/bin/llvm-dis $<
-
-.PRECIOUS: %.normalized_ll
-%.normalized_ll: | %.bc
-	build/Release/llvm/bin/opt -S -strip $| | sed -e 's/%[0-9]\+/%X/g' -e 's/@[0-9]\+/@X/g' > $@
-find_similar_traces: $(patsubst %.bc,%.normalized_ll,$(wildcard pyston/aot/*.bc))
-	python3 pyston/aot/aot_diff_ir.py
-
 ONLY?=null
-
-# Usage:
-# $(call make_aot_build,NAME,FLAGS)
-define make_aot_build
-$(eval
-build/$(1)/aot_pre_trace.c: pyston/aot/aot_gen.py build/bc_install/usr/bin/python3
-	mkdir -p build/$(1)
-	cd pyston/aot; LD_LIBRARY_PATH="`pwd`/../Release/nitrous/:`pwd`/../Release/pystol/" ../../build/bc_install/usr/bin/python3 aot_gen.py --action=pretrace -o $$(abspath $$@) $(2)
-build/$(1)/aot_pre_trace.bc: build/$(1)/aot_pre_trace.c
-	$(CLANG) -O2 -g -fPIC -Wno-incompatible-pointer-types -Wno-int-conversion $$< -Ibuild/bc_install/usr/include/python$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR)/ -Ibuild/bc_install/usr/include/python$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR)/internal/ -Ipyston/nitrous/ -emit-llvm -c -o $$@
-build/$(1)/aot_pre_trace.so: build/$(1)/aot_pre_trace.c build/Release/nitrous/libinterp.so
-	$(CLANG) -O2 -g -fPIC -Wno-incompatible-pointer-types -Wno-int-conversion $$< -Ibuild/bc_install/usr/include/python$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR)/ -Ibuild/bc_install/usr/include/python$(PYTHON_MAJOR).$(PYTHON_MINOR)-pyston$(PYSTON_MAJOR).$(PYSTON_MINOR)/internal/ -Ipyston/nitrous/ -shared -Lbuild/Release/nitrous -linterp -o $$@
-
-build/$(1)/all.bc: build/bc_build/pyston $(LLVM_TOOLS) build/$(1)/aot_pre_trace.bc
-	$(LLVM_LINK) $$(filter-out %_testembed.o.bc %frozenmain.o.bc build/cpython_bc/Modules/%,$$(wildcard build/cpython_bc/*/*.bc)) build/cpython_bc/Modules/gcmodule.o.bc build/cpython_bc/Modules/getpath.o.bc build/cpython_bc/Modules/main.o.bc build/cpython_bc/Modules/config.o.bc build/$(1)/aot_pre_trace.bc -o=$$@
-
-# Not really dependent on aot_profile.c, but aot_profile.c gets generated at the same time as the real dependencies
-build/$(1)/aot_all.bc: build/$(1)/aot_profile.c
-	cd build/$(1); $(LLVM_LINK) aot_module*.bc -o aot_all.bc
-
-build/$(1)/aot_profile.c: build/$(1)/all.bc build/$(1)/aot_pre_trace.so build/bc_install/usr/bin/python3 pyston/aot/aot_gen.py build/Release/nitrous/libinterp.so build/Release/pystol/libpystol.so
-	cd build/$(1); rm -f aot_module*.bc
-	cd build/$(1); LD_LIBRARY_PATH="`pwd`/../Release/nitrous/:`pwd`/../Release/pystol/" ../bc_install/usr/bin/python3 ../../pyston/aot/aot_gen.py --action=trace $(2)
-	cd build/$(1); ls -al aot_module*.bc | wc -l
-)
-endef
-
-$(call make_aot_build,aot,)
-$(call make_aot_build,aot_pic,--pic)
-$(call make_aot_build,aot_dev,)
-
-dbg_aot_trace: build/aot_dev/all.bc build/aot_dev/aot_pre_trace.so pyston/aot/aot_gen.py build/bc_install/usr/bin/python3 build_dbg
-	cd build/aot_dev; rm -f aot_module*.bc
-	cd build/aot_dev; LD_LIBRARY_PATH="`pwd`/../PartialDebug/nitrous/:`pwd`/../PartialDebug/pystol/" gdb --args ../bc_install/usr/bin/python3 ../../pyston/aot/aot_gen.py -vv --action=trace
-	cd build/aot_dev; ls -al aot_module*.bc | wc -l
-
-aot_trace_only: build/aot_dev/all.bc build/aot_dev/aot_pre_trace.so pyston/aot/aot_gen.py build/bc_install/usr/bin/python3 build/Release/nitrous/libinterp.so build/Release/pystol/libpystol.so
-	cd build/aot_dev; LD_LIBRARY_PATH="`pwd`/../Release/nitrous/:`pwd`/../Release/pystol/" ../bc_install/usr/bin/python3 ../../pyston/aot/aot_gen.py --action=trace -vv --only=$(ONLY)
-
-dbg_aot_trace_only: build/aot_dev/all.bc build/aot_dev/aot_pre_trace.so pyston/aot/aot_gen.py build/bc_install/usr/bin/python3 build_dbg
-	cd build/aot_dev; LD_LIBRARY_PATH="`pwd`/../PartialDebug/nitrous/:`pwd`/../PartialDebug/pystol/" gdb --ex run --args ../bc_install/usr/bin/python3 ../../pyston/aot/aot_gen.py --action=trace -vv --only=$(ONLY)
-
-debug_aot_trace_only: build/aot_dev/all.bc build/aot_dev/aot_pre_trace.so pyston/aot/aot_gen.py build/bc_install/usr/bin/python3 build_debug
-	cd build/aot_dev; LD_LIBRARY_PATH="`pwd`/../Debug/nitrous/:`pwd`/../Debug/pystol/" gdb --ex run --args ../bc_install/usr/bin/python3 ../../pyston/aot/aot_gen.py --action=trace -vv --only=$(ONLY)
 
 PYPERF:=build/system_env/bin/pyperf command -w 0 -l 1 -p 1 -n $(or $(N),$(N),3) -v --affinity 0
 
