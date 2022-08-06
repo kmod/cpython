@@ -648,7 +648,7 @@ profile-opt: profile-run-stamp
 
 bolt:
 	rm -f *.fdata
-	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(BUILDPYTHON).bolt -o $(BUILDPYTHON).bolt_inst
+	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(abspath $(BUILDPYTHON).bolt) -o $(BUILDPYTHON).bolt_inst
 	./$(BUILDPYTHON).bolt_inst -m venv /tmp/bolt_env
 	/tmp/bolt_env/bin/pip install -r /home/kmod/pyston/pyston/pgo_requirements.txt
 	/tmp/bolt_env/bin/python3 /home/kmod/pyston/pyston/run_profile_task.py
