@@ -658,6 +658,33 @@ bolt:
 	mv $(BUILDPYTHON) $(BUILDPYTHON).nobolt
 	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
 
+bolt2:
+	rm -f *.fdata
+	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(abspath $(BUILDPYTHON).bolt) -o $(BUILDPYTHON).bolt_inst
+	python3 -m pyperformance run --python ./$(BUILDPYTHON).bolt_inst
+	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack -frame-opt=hot
+	mv $(BUILDPYTHON) $(BUILDPYTHON).nobolt
+	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
+
+bolt3:
+	rm -f *.fdata
+	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(abspath $(BUILDPYTHON).bolt) -o $(BUILDPYTHON).bolt_inst
+	./$(BUILDPYTHON).bolt_inst -m test --pgo || true
+	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack -frame-opt=hot
+	mv $(BUILDPYTHON) $(BUILDPYTHON).nobolt
+	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
+
+bolt4:
+	rm -f *.fdata
+	llvm-bolt $(BUILDPYTHON) -instrument -instrumentation-file-append-pid -instrumentation-file=$(abspath $(BUILDPYTHON).bolt) -o $(BUILDPYTHON).bolt_inst
+	./$(BUILDPYTHON).bolt_inst ../../Lib/test/regrtest.py -j0 -unone,decimal -x test_posix test_asyncio test_cmd_line_script test_compiler test_concurrent_futures test_ctypes test_dbm_dumb test_dbm_ndbm test_distutils test_ensurepip test_ftplib test_gdb test_httplib test_imaplib test_ioctl test_linuxaudiodev test_multiprocessing test_nntplib test_ossaudiodev test_poplib test_pydoc test_signal test_socket test_socketserver test_ssl test_subprocess test_sundry test_thread test_threaded_import test_threadedtempfile test_threading test_threading_local test_threadsignals test_venv test_zipimport_support || true
+	merge-fdata $(BUILDPYTHON).*.fdata > $(BUILDPYTHON).fdata
+	llvm-bolt $(BUILDPYTHON) -o $(BUILDPYTHON).bolt -data=$(BUILDPYTHON).fdata -update-debug-sections -reorder-blocks=ext-tsp -reorder-functions=hfsort+ -split-functions=3 -icf=1 -inline-all -split-eh -reorder-functions-use-hot-size -peepholes=all -jump-tables=aggressive -inline-ap -indirect-call-promotion=all -dyno-stats -use-gnu-stack -frame-opt=hot
+	mv $(BUILDPYTHON) $(BUILDPYTHON).nobolt
+	mv $(BUILDPYTHON).bolt $(BUILDPYTHON)
+
 bolt_perf:
 	perf record -e cycles:u -j any,u -- ./$(BUILDPYTHON) $(PROFILE_TASK)
 	perf2bolt -p perf.data -o perf.fdata $(BUILDPYTHON)
