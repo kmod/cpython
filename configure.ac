@@ -1929,6 +1929,12 @@ if test "$Py_BOLT" = 'true' ; then
   # These flags are required for bolt to work:
   CFLAGS_NODIST="$CFLAGS_NODIST -fno-reorder-blocks-and-partition"
   LDFLAGS_NODIST="$LDFLAGS_NODIST -Wl,--emit-relocs"
+  CFLAGS_NODIST="$CFLAGS_NODIST -specs=/home/kmod/pyston/pyston/tools/no-pie-compile.specs"
+  LDFLAGS_NODIST="$LDFLAGS_NODIST -specs=/home/kmod/pyston/pyston/tools/no-pie-link.specs -Wl,-z,relro"
+  LDSHARED='$(CC) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
+  LDCXXSHARED='$(CXX) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
+  LINKFORSHARED='-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions'
+  LDFLAGS_NOLTO="$LDFLAGS_NOLTO -specs=/home/kmod/pyston/pyston/tools/no-pie-link.specs -Wl,-z,relro -Wl,--emit-relocs"
 
   AC_SUBST(LLVM_BOLT)
   AC_PATH_TOOL(LLVM_BOLT, llvm-bolt, '', ${llvm_path})
