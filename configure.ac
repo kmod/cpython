@@ -1931,9 +1931,9 @@ if test "$Py_BOLT" = 'true' ; then
   LDFLAGS_NODIST="$LDFLAGS_NODIST -Wl,--emit-relocs"
   CFLAGS_NODIST="$CFLAGS_NODIST -specs=/home/kmod/pyston/pyston/tools/no-pie-compile.specs"
   LDFLAGS_NODIST="$LDFLAGS_NODIST -specs=/home/kmod/pyston/pyston/tools/no-pie-link.specs -Wl,-z,relro"
-  LDSHARED='$(CC) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
-  LDCXXSHARED='$(CXX) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
-  LINKFORSHARED='-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions'
+  # LDSHARED='$(CC) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
+  # LDCXXSHARED='$(CXX) -shared -Wl,-O1 -Wl,-Bsymbolic-functions'
+  # LINKFORSHARED='-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions'
   LDFLAGS_NOLTO="$LDFLAGS_NOLTO -specs=/home/kmod/pyston/pyston/tools/no-pie-link.specs -Wl,-z,relro -Wl,--emit-relocs"
 
   AC_SUBST(LLVM_BOLT)
