@@ -11,6 +11,10 @@
 #include "pycore_runtime.h"       // _PY_NSMALLPOSINTS
 #include "pycore_structseq.h"     // _PyStructSequence_FiniType()
 
+#define PyLong_MAXFREELIST    100
+int long_numfree = 0;
+PyLongObject *long_free_list = NULL;
+
 #include <ctype.h>
 #include <float.h>
 #include <stddef.h>
@@ -196,17 +200,39 @@ _PyLong_FromMedium(sdigit x)
 {
     assert(!IS_SMALL_INT(x));
     assert(is_medium_int(x));
-    /* We could use a freelist here */
-    PyLongObject *v = PyObject_Malloc(sizeof(PyLongObject));
-    if (v == NULL) {
-        PyErr_NoMemory();
-        return NULL;
+
+    PyLongObject *v = long_free_list;
+    if (v != NULL) {
+        long_free_list = (PyLongObject *)Py_TYPE(v);
+        long_numfree--;
+    } else {
+        v = PyObject_Malloc(sizeof(PyLongObject));
+        if (v == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
     }
     Py_ssize_t sign = x < 0 ? -1: 1;
     digit abs_x = x < 0 ? -x : x;
     _PyObject_InitVar((PyVarObject*)v, &PyLong_Type, sign);
     v->ob_digit[0] = abs_x;
     return (PyObject*)v;
+}
+
+void long_dealloc(PyLongObject *op)
+{
+    if (PyLong_CheckExact(op) && IS_MEDIUM_VALUE(op)
+        /*&& !IS_SMALL_INT(medium_value(op)) can't be true because all small ints are immortal */) {
+        if (long_numfree >= PyLong_MAXFREELIST)  {
+            PyObject_FREE(op);
+            return;
+        }
+        long_numfree++;
+        Py_SET_TYPE((PyObject*)op, (PyTypeObject*)long_free_list);
+        long_free_list = op;
+    }
+    else
+        Py_TYPE(op)->tp_free((PyObject *)op);
 }
 
 static PyObject *
@@ -6040,7 +6066,7 @@ PyTypeObject PyLong_Type = {
     "int",                                      /* tp_name */
     offsetof(PyLongObject, ob_digit),           /* tp_basicsize */
     sizeof(digit),                              /* tp_itemsize */
-    0,                                          /* tp_dealloc */
+    (destructor)long_dealloc,                   /* tp_dealloc */
     0,                                          /* tp_vectorcall_offset */
     0,                                          /* tp_getattr */
     0,                                          /* tp_setattr */
