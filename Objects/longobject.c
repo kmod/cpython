@@ -1219,6 +1219,9 @@ PyLong_FromSsize_t(Py_ssize_t ival)
     if (IS_SMALL_INT(ival)) {
         return get_small_int((sdigit)ival);
     }
+    if (-(long long)PyLong_MASK <= ival && ival <= (long long)PyLong_MASK) {
+        return _PyLong_FromMedium((sdigit)ival);
+    }
 
     if (ival < 0) {
         /* avoid signed overflow when ival = SIZE_T_MIN */
