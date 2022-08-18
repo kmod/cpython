@@ -335,7 +335,7 @@ import_ensure_initialized(PyInterpreterState *interp, PyObject *mod, PyObject *n
        NOTE: because of this, initializing must be set *before*
        stuffing the new module in sys.modules.
     */
-    spec = PyObject_GetAttr(mod, &_Py_ID(__spec__));
+    spec = _PyModule_GetSpec();
     int busy = _PyModuleSpec_IsInitializing(spec);
     Py_XDECREF(spec);
     if (busy) {

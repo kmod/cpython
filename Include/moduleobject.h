@@ -55,6 +55,11 @@ typedef struct PyModuleDef_Base {
     _Py_NULL, /* m_copy */       \
   }
 
+// gets __path__
+PyAPI_FUNC(PyObject *) _PyModule_GetPath(PyObject *);
+// gets __spec__
+PyAPI_FUNC(PyObject *) _PyModule_GetSpec(PyObject *);
+
 #if !defined(Py_LIMITED_API) || Py_LIMITED_API+0 >= 0x03050000
 /* New in 3.5 */
 struct PyModuleDef_Slot {
