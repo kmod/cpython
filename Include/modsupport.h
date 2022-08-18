@@ -36,6 +36,16 @@ PyAPI_FUNC(int) PyArg_UnpackTuple(PyObject *, const char *, Py_ssize_t, Py_ssize
 PyAPI_FUNC(PyObject *) Py_BuildValue(const char *, ...);
 PyAPI_FUNC(PyObject *) _Py_BuildValue_SizeT(const char *, ...);
 
+// Because PyArg_UnpackTuple does no C-type-checking of its arguments,
+// wrap the new UnpackTuple functions in macros that do auto-casting:
+//#define PyArg_UnpackTuple1(t, name, min, max, o1) _PyArg_UnpackTuple1((t), (name), (min), (max), (PyObject **)o1)
+//#define PyArg_UnpackTuple2(t, name, min, max, o1, o2) _PyArg_UnpackTuple2((t), (name), (min), (max), (PyObject **)o1, (PyObject **)o2)
+#define PyArg_UnpackTuple1(t, name, min, max, o1) _PyArg_UnpackTuple3((t), (name), (min), (max), (PyObject **)o1, NULL, NULL)
+#define PyArg_UnpackTuple2(t, name, min, max, o1, o2) _PyArg_UnpackTuple3((t), (name), (min), (max), (PyObject **)o1, (PyObject **)o2, NULL)
+#define PyArg_UnpackTuple3(t, name, min, max, o1, o2, o3) _PyArg_UnpackTuple3((t), (name), (min), (max), (PyObject **)o1, (PyObject **)o2, (PyObject **)o3)
+PyAPI_FUNC(int) _PyArg_UnpackTuple1(PyObject *, const char *, Py_ssize_t, Py_ssize_t, PyObject **);
+PyAPI_FUNC(int) _PyArg_UnpackTuple2(PyObject *, const char *, Py_ssize_t, Py_ssize_t, PyObject **, PyObject **);
+PyAPI_FUNC(int) _PyArg_UnpackTuple3(PyObject *, const char *, Py_ssize_t, Py_ssize_t, PyObject **, PyObject **, PyObject **);
 
 PyAPI_FUNC(PyObject *) Py_VaBuildValue(const char *, va_list);
 

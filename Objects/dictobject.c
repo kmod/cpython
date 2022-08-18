@@ -2690,7 +2690,7 @@ dict_update_common(PyObject *self, PyObject *args, PyObject *kwds,
     PyObject *arg = NULL;
     int result = 0;
 
-    if (!PyArg_UnpackTuple(args, methname, 0, 1, &arg)) {
+    if (!PyArg_UnpackTuple1(args, methname, 0, 1, &arg)) {
         result = -1;
     }
     else if (arg != NULL) {

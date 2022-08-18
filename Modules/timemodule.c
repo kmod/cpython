@@ -958,7 +958,7 @@ time_asctime(PyObject *module, PyObject *args)
     PyObject *tup = NULL;
     struct tm buf;
 
-    if (!PyArg_UnpackTuple(args, "asctime", 0, 1, &tup))
+    if (!PyArg_UnpackTuple1(args, "asctime", 0, 1, &tup))
         return NULL;
 
     time_module_state *state = get_time_state(module);

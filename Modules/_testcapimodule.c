@@ -6016,7 +6016,7 @@ awaitObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *v;
     awaitObject *ao;
 
-    if (!PyArg_UnpackTuple(args, "awaitObject", 1, 1, &v))
+    if (!PyArg_UnpackTuple1(args, "awaitObject", 1, 1, &v))
         return NULL;
 
     ao = (awaitObject *)type->tp_alloc(type, 0);

@@ -37,7 +37,7 @@ bool_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (!_PyArg_NoKeywords("bool", kwds))
         return NULL;
-    if (!PyArg_UnpackTuple(args, "bool", 0, 1, &x))
+    if (!PyArg_UnpackTuple1(args, "bool", 0, 1, &x))
         return NULL;
     ok = PyObject_IsTrue(x);
     if (ok < 0)

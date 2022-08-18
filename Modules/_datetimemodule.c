@@ -3009,7 +3009,7 @@ datetime_date_fromtimestamp_capi(PyObject *cls, PyObject *args)
     PyObject *timestamp;
     PyObject *result = NULL;
 
-    if (PyArg_UnpackTuple(args, "fromtimestamp", 1, 1, &timestamp)) {
+    if (PyArg_UnpackTuple1(args, "fromtimestamp", 1, 1, &timestamp)) {
         result = date_fromtimestamp(cls, timestamp);
     }
 
