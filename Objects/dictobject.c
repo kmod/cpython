@@ -4319,7 +4319,7 @@ dictiter_iternextitem(dictiterobject *di)
         }
     }
     else {
-        result = PyTuple_New(2);
+        result = PyTuple_New_Nonzeroed(2);
         if (result == NULL)
             return NULL;
         PyTuple_SET_ITEM(result, 0, key);  /* steals reference */
@@ -4453,7 +4453,7 @@ dictreviter_iternext(dictiterobject *di)
             }
         }
         else {
-            result = PyTuple_New(2);
+            result = PyTuple_New_Nonzeroed(2);
             if (result == NULL) {
                 return NULL;
             }

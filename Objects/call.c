@@ -990,7 +990,7 @@ _PyStack_UnpackDict(PyThreadState *tstate,
         return NULL;
     }
 
-    PyObject *kwnames = PyTuple_New(nkwargs);
+    PyObject *kwnames = PyTuple_New_Nonzeroed(nkwargs);
     if (kwnames == NULL) {
         PyMem_Free(stack);
         return NULL;

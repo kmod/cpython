@@ -28,6 +28,7 @@ PyAPI_DATA(PyTypeObject) PyTupleIter_Type;
 #define PyTuple_CheckExact(op) Py_IS_TYPE((op), &PyTuple_Type)
 
 PyAPI_FUNC(PyObject *) PyTuple_New(Py_ssize_t size);
+PyAPI_FUNC(PyObject *) PyTuple_New_Nonzeroed(Py_ssize_t size);
 PyAPI_FUNC(Py_ssize_t) PyTuple_Size(PyObject *);
 PyAPI_FUNC(PyObject *) PyTuple_GetItem(PyObject *, Py_ssize_t);
 PyAPI_FUNC(int) PyTuple_SetItem(PyObject *, Py_ssize_t, PyObject *);

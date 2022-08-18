@@ -83,6 +83,21 @@ PyTuple_New(Py_ssize_t size)
     return (PyObject *) op;
 }
 
+PyObject *
+PyTuple_New_Nonzeroed(Py_ssize_t size)
+{
+    PyTupleObject *op;
+    if (size == 0) {
+        return tuple_get_empty();
+    }
+    op = tuple_alloc(size);
+    if (op == NULL) {
+        return NULL;
+    }
+    _PyObject_GC_TRACK(op);
+    return (PyObject *) op;
+}
+
 Py_ssize_t
 PyTuple_Size(PyObject *op)
 {
@@ -181,7 +196,7 @@ PyTuple_Pack(Py_ssize_t n, ...)
 
 PyObject *
 _PyTuple_Pack1(PyObject *el0) {
-    PyObject* result = PyTuple_New(1);
+    PyObject* result = PyTuple_New_Nonzeroed(1);
     if (result == NULL)
         return NULL;
 
@@ -194,7 +209,7 @@ _PyTuple_Pack1(PyObject *el0) {
 
 PyObject *
 _PyTuple_Pack2(PyObject *el0, PyObject *el1) {
-    PyObject* result = PyTuple_New(2);
+    PyObject* result = PyTuple_New_Nonzeroed(2);
     if (result == NULL)
         return NULL;
 
@@ -209,7 +224,7 @@ _PyTuple_Pack2(PyObject *el0, PyObject *el1) {
 
 PyObject *
 _PyTuple_Pack3(PyObject *el0, PyObject *el1, PyObject *el2) {
-    PyObject* result = PyTuple_New(3);
+    PyObject* result = PyTuple_New_Nonzeroed(3);
     if (result == NULL)
         return NULL;
 
