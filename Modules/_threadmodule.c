@@ -1108,7 +1108,7 @@ thread_PyThread_start_new_thread(PyObject *self, PyObject *fargs)
     _PyRuntimeState *runtime = &_PyRuntime;
     PyObject *func, *args, *kwargs = NULL;
 
-    if (!PyArg_UnpackTuple(fargs, "start_new_thread", 2, 3,
+    if (!PyArg_UnpackTuple3(fargs, "start_new_thread", 2, 3,
                            &func, &args, &kwargs))
         return NULL;
     if (!PyCallable_Check(func)) {

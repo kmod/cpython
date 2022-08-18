@@ -2113,8 +2113,8 @@ async_gen_athrow_send(PyAsyncGenAThrow *o, PyObject *arg)
             PyObject *tb = NULL;
             PyObject *val = NULL;
 
-            if (!PyArg_UnpackTuple(o->agt_args, "athrow", 1, 3,
-                                   &typ, &val, &tb)) {
+            if (!PyArg_UnpackTuple3(o->agt_args, "athrow", 1, 3,
+                                    &typ, &val, &tb)) {
                 return NULL;
             }
 

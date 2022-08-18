@@ -1708,8 +1708,8 @@ byref(PyObject *self, PyObject *args)
     PyObject *pyoffset = NULL;
     Py_ssize_t offset = 0;
 
-    if (!PyArg_UnpackTuple(args, "byref", 1, 2,
-                           &obj, &pyoffset))
+    if (!PyArg_UnpackTuple2(args, "byref", 1, 2,
+                            &obj, &pyoffset))
         return NULL;
     if (pyoffset) {
         offset = PyNumber_AsSsize_t(pyoffset, NULL);

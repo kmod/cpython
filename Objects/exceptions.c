@@ -1149,7 +1149,7 @@ static PyObject *
 BaseExceptionGroup_split(PyObject *self, PyObject *args)
 {
     PyObject *matcher_value = NULL;
-    if (!PyArg_UnpackTuple(args, "split", 1, 1, &matcher_value)) {
+    if (!PyArg_UnpackTuple1(args, "split", 1, 1, &matcher_value)) {
         return NULL;
     }
 
@@ -1179,7 +1179,7 @@ static PyObject *
 BaseExceptionGroup_subgroup(PyObject *self, PyObject *args)
 {
     PyObject *matcher_value = NULL;
-    if (!PyArg_UnpackTuple(args, "subgroup", 1, 1, &matcher_value)) {
+    if (!PyArg_UnpackTuple1(args, "subgroup", 1, 1, &matcher_value)) {
         return NULL;
     }
 

@@ -911,7 +911,7 @@ cm_init(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!_PyArg_NoKeywords("classmethod", kwds))
         return -1;
-    if (!PyArg_UnpackTuple(args, "classmethod", 1, 1, &callable))
+    if (!PyArg_UnpackTuple1(args, "classmethod", 1, 1, &callable))
         return -1;
     Py_INCREF(callable);
     Py_XSETREF(cm->cm_callable, callable);
@@ -1102,7 +1102,7 @@ sm_init(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!_PyArg_NoKeywords("staticmethod", kwds))
         return -1;
-    if (!PyArg_UnpackTuple(args, "staticmethod", 1, 1, &callable))
+    if (!PyArg_UnpackTuple1(args, "staticmethod", 1, 1, &callable))
         return -1;
     Py_INCREF(callable);
     Py_XSETREF(sm->sm_callable, callable);

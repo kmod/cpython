@@ -4941,7 +4941,7 @@ static int
 Simple_init(CDataObject *self, PyObject *args, PyObject *kw)
 {
     PyObject *value = NULL;
-    if (!PyArg_UnpackTuple(args, "__init__", 0, 1, &value))
+    if (!PyArg_UnpackTuple1(args, "__init__", 0, 1, &value))
         return -1;
     if (value)
         return Simple_set_value(self, value, NULL);
@@ -5212,7 +5212,7 @@ Pointer_init(CDataObject *self, PyObject *args, PyObject *kw)
 {
     PyObject *value = NULL;
 
-    if (!PyArg_UnpackTuple(args, "POINTER", 0, 1, &value))
+    if (!PyArg_UnpackTuple1(args, "POINTER", 0, 1, &value))
         return -1;
     if (value == NULL)
         return 0;

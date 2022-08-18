@@ -2794,7 +2794,7 @@ hamt_py_set(PyHamtObject *self, PyObject *args)
     PyObject *key;
     PyObject *val;
 
-    if (!PyArg_UnpackTuple(args, "set", 2, 2, &key, &val)) {
+    if (!PyArg_UnpackTuple2(args, "set", 2, 2, &key, &val)) {
         return NULL;
     }
 
@@ -2807,7 +2807,7 @@ hamt_py_get(PyHamtObject *self, PyObject *args)
     PyObject *key;
     PyObject *def = NULL;
 
-    if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &def)) {
+    if (!PyArg_UnpackTuple2(args, "get", 1, 2, &key, &def)) {
         return NULL;
     }
 

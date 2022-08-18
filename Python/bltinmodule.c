@@ -500,7 +500,7 @@ filter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         !_PyArg_NoKeywords("filter", kwds))
         return NULL;
 
-    if (!PyArg_UnpackTuple(args, "filter", 2, 2, &func, &seq))
+    if (!PyArg_UnpackTuple2(args, "filter", 2, 2, &func, &seq))
         return NULL;
 
     /* Get iterator. */
@@ -845,7 +845,7 @@ builtin_dir(PyObject *self, PyObject *args)
 {
     PyObject *arg = NULL;
 
-    if (!PyArg_UnpackTuple(args, "dir", 0, 1, &arg))
+    if (!PyArg_UnpackTuple1(args, "dir", 0, 1, &arg))
         return NULL;
     return PyObject_Dir(arg);
 }
@@ -1738,7 +1738,7 @@ min_max(PyObject *args, PyObject *kwds, int op)
     if (positional) {
         v = args;
     }
-    else if (!PyArg_UnpackTuple(args, name, 1, 1, &v)) {
+    else if (!PyArg_UnpackTuple1(args, name, 1, 1, &v)) {
         if (PyExceptionClass_Check(PyExc_TypeError)) {
             PyErr_Format(PyExc_TypeError, "%s expected at least 1 argument, got 0", name);
         }
@@ -2407,7 +2407,7 @@ builtin_vars(PyObject *self, PyObject *args)
     PyObject *v = NULL;
     PyObject *d;
 
-    if (!PyArg_UnpackTuple(args, "vars", 0, 1, &v))
+    if (!PyArg_UnpackTuple1(args, "vars", 0, 1, &v))
         return NULL;
     if (v == NULL) {
         d = PyEval_GetLocals();

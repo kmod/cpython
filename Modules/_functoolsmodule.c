@@ -657,7 +657,7 @@ functools_reduce(PyObject *self, PyObject *args)
 {
     PyObject *seq, *func, *result = NULL, *it;
 
-    if (!PyArg_UnpackTuple(args, "reduce", 2, 3, &func, &seq, &result))
+    if (!PyArg_UnpackTuple3(args, "reduce", 2, 3, &func, &seq, &result))
         return NULL;
     if (result != NULL)
         Py_INCREF(result);

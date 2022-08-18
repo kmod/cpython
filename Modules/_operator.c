@@ -998,7 +998,7 @@ itemgetter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     nitems = PyTuple_GET_SIZE(args);
     if (nitems <= 1) {
-        if (!PyArg_UnpackTuple(args, "itemgetter", 1, 1, &item))
+        if (!PyArg_UnpackTuple1(args, "itemgetter", 1, 1, &item))
             return NULL;
     } else {
         item = args;
@@ -1219,7 +1219,7 @@ attrgetter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     nattrs = PyTuple_GET_SIZE(args);
     if (nattrs <= 1) {
-        if (!PyArg_UnpackTuple(args, "attrgetter", 1, 1, &attr))
+        if (!PyArg_UnpackTuple1(args, "attrgetter", 1, 1, &attr))
             return NULL;
     }
 

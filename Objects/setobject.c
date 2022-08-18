@@ -1014,7 +1014,7 @@ frozenset_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (!PyArg_UnpackTuple(args, type->tp_name, 0, 1, &iterable)) {
+    if (!PyArg_UnpackTuple1(args, type->tp_name, 0, 1, &iterable)) {
         return NULL;
     }
 
@@ -1985,7 +1985,7 @@ set_init(PySetObject *self, PyObject *args, PyObject *kwds)
 
      if (!_PyArg_NoKeywords("set", kwds))
         return -1;
-    if (!PyArg_UnpackTuple(args, Py_TYPE(self)->tp_name, 0, 1, &iterable))
+    if (!PyArg_UnpackTuple1(args, Py_TYPE(self)->tp_name, 0, 1, &iterable))
         return -1;
     if (self->fill)
         set_clear_internal(self);
