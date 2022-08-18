@@ -196,7 +196,7 @@ PyTuple_Pack(Py_ssize_t n, ...)
 
 PyObject *
 _PyTuple_Pack1(PyObject *el0) {
-    PyObject* result = PyTuple_New_Nonzeroed(1);
+    PyObject* result = tuple_alloc(1);
     if (result == NULL)
         return NULL;
 
@@ -204,12 +204,13 @@ _PyTuple_Pack1(PyObject *el0) {
     items[0] = el0;
     Py_INCREF(el0);
 
+    _PyObject_GC_TRACK(result);
     return result;
 }
 
 PyObject *
 _PyTuple_Pack2(PyObject *el0, PyObject *el1) {
-    PyObject* result = PyTuple_New_Nonzeroed(2);
+    PyObject* result = tuple_alloc(2);
     if (result == NULL)
         return NULL;
 
@@ -219,12 +220,13 @@ _PyTuple_Pack2(PyObject *el0, PyObject *el1) {
     items[1] = el1;
     Py_INCREF(el1);
 
+    _PyObject_GC_TRACK(result);
     return result;
 }
 
 PyObject *
 _PyTuple_Pack3(PyObject *el0, PyObject *el1, PyObject *el2) {
-    PyObject* result = PyTuple_New_Nonzeroed(3);
+    PyObject* result = tuple_alloc(3);
     if (result == NULL)
         return NULL;
 
@@ -236,6 +238,7 @@ _PyTuple_Pack3(PyObject *el0, PyObject *el1, PyObject *el2) {
     items[2] = el2;
     Py_INCREF(el2);
 
+    _PyObject_GC_TRACK(result);
     return result;
 }
 
