@@ -477,7 +477,6 @@ int list_traverse(PyListObject *o, visitproc visit, void *arg);
  * compiler to generate specializations of the traversal methods, getting rid
  * of the indirect calls via Py_VISIT.
  */
-__attribute__((always_inline)) __attribute__((flatten))
 static void
 inlined_tp_traverse(PyObject* op, visitproc proc, void* c)
 {
