@@ -2669,21 +2669,23 @@ PyUnicode_FromFormatV(const char *format, va_list vargs)
             Py_ssize_t len;
 
             p = f;
+            char c = *p;
             do
             {
-                if ((unsigned char)*p > 127) {
+                if ((unsigned char)c > 127) {
                     PyErr_Format(PyExc_ValueError,
                         "PyUnicode_FromFormatV() expects an ASCII-encoded format "
                         "string, got a non-ASCII byte: 0x%02x",
-                        (unsigned char)*p);
+                        (unsigned char)p);
                     goto fail;
                 }
                 p++;
+                c = *p;
             }
-            while (*p != '\0' && *p != '%');
+            while (c != '\0' && c != '%');
             len = p - f;
 
-            if (*p == '\0')
+            if (c == '\0')
                 writer.overallocate = 0;
 
             if (_PyUnicodeWriter_WriteASCIIString(&writer, f, len) < 0)
