@@ -2616,9 +2616,15 @@ digit beyond the first.
     if (strobj == NULL) {
         return NULL;
     }
-    PyErr_Format(PyExc_ValueError,
-                 "invalid literal for int() with base %d: %.200R",
-                 base, strobj);
+    if (base == 10) {
+        PyErr_Format(PyExc_ValueError,
+                     "invalid literal for int() with base 10: %.200R",
+                     strobj);
+    } else {
+        PyErr_Format(PyExc_ValueError,
+                     "invalid literal for int() with base %d: %.200R",
+                     base, strobj);
+    }
     Py_DECREF(strobj);
     return NULL;
 }
