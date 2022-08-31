@@ -2680,7 +2680,7 @@ PyUnicode_FromFormatV(const char *format, va_list vargs)
                     PyErr_Format(PyExc_ValueError,
                         "PyUnicode_FromFormatV() expects an ASCII-encoded format "
                         "string, got a non-ASCII byte: 0x%02x",
-                        (unsigned char)p);
+                        (unsigned char)c);
                     goto fail;
                 }
                 p++;
