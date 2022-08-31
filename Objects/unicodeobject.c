@@ -1278,6 +1278,8 @@ unicode_check_modifiable(PyObject *unicode)
     return 0;
 }
 
+static int kind_to_shift[] = {0, 0, 1, 0, 2};
+
 static int
 _copy_characters(PyObject *to, Py_ssize_t to_start,
                  PyObject *from, Py_ssize_t from_start,
@@ -1330,9 +1332,11 @@ _copy_characters(PyObject *to, Py_ssize_t to_start,
             if (max_char >= 128)
                 return -1;
         }
-        memcpy((char*)to_data + to_kind * to_start,
-                  (const char*)from_data + from_kind * from_start,
-                  to_kind * how_many);
+        int to_shift = kind_to_shift[to_kind];
+        int from_shift = to_shift;
+        memcpy((char*)to_data + (to_start << to_shift),
+                  (const char*)from_data + (from_start << from_shift),
+                  (how_many << to_shift));
     }
     else if (from_kind == PyUnicode_1BYTE_KIND
              && to_kind == PyUnicode_2BYTE_KIND)
