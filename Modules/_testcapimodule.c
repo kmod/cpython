@@ -43,6 +43,9 @@
 #  error "The public headers should not include <stdbool.h>, see bpo-46748"
 #endif
 
+#define Py_BUILD_CORE
+#include "internal/pycore_tuple.h"
+
 // Several parts of this module are broken out into files in _testcapi/.
 // Include definitions from there.
 #include "_testcapi/parts.h"
@@ -51,6 +54,73 @@
 static struct PyModuleDef _testcapimodule;
 static PyObject *TestError;     /* set to exception object in init */
 
+static PyObject*
+bench1(PyObject *self, PyObject *args)
+{
+    int i, loops;
+    if (!PyArg_ParseTuple(args, "i", &loops)) {
+        return NULL;
+    }
+
+    PyObject *item1 = Py_None;
+    PyObject *item2 = Py_False;
+
+    _PyTime_t t1 = _PyTime_GetPerfCounter();
+    for (i=0; i < loops; i++) {
+        PyObject *obj = PyTuple_New(2);
+        Py_INCREF(item1);
+        PyTuple_SET_ITEM(obj, 0, item1);
+        Py_INCREF(item2);
+        PyTuple_SET_ITEM(obj, 1, item2);
+        Py_DECREF(obj);
+    }
+    _PyTime_t t2 = _PyTime_GetPerfCounter();
+    return PyFloat_FromDouble(_PyTime_AsSecondsDouble(t2 - t1));
+}
+
+static PyObject*
+bench2(PyObject *self, PyObject *args)
+{
+    int i, loops;
+    if (!PyArg_ParseTuple(args, "i", &loops)) {
+        return NULL;
+    }
+
+    PyObject *item1 = Py_None;
+    PyObject *item2 = Py_False;
+
+    _PyTime_t t1 = _PyTime_GetPerfCounter();
+    for (i=0; i < loops; i++) {
+        PyObject *obj = _PyTuple_New_Nonzeroed(2);
+        Py_INCREF(item1);
+        PyTuple_SET_ITEM(obj, 0, item1);
+        Py_INCREF(item2);
+        PyTuple_SET_ITEM(obj, 1, item2);
+        Py_DECREF(obj);
+    }
+    _PyTime_t t2 = _PyTime_GetPerfCounter();
+    return PyFloat_FromDouble(_PyTime_AsSecondsDouble(t2 - t1));
+}
+
+static PyObject*
+bench3(PyObject *self, PyObject *args)
+{
+    int i, loops;
+    if (!PyArg_ParseTuple(args, "i", &loops)) {
+        return NULL;
+    }
+
+    PyObject *item1 = Py_None;
+    PyObject *item2 = Py_False;
+
+    _PyTime_t t1 = _PyTime_GetPerfCounter();
+    for (i=0; i < loops; i++) {
+        PyObject *obj = PyTuple_Pack(2, item1, item2);
+        Py_DECREF(obj);
+    }
+    _PyTime_t t2 = _PyTime_GetPerfCounter();
+    return PyFloat_FromDouble(_PyTime_AsSecondsDouble(t2 - t1));
+}
 
 /* Raise TestError with test_name + ": " + msg, and return NULL. */
 
@@ -5734,6 +5804,9 @@ static PyMethodDef TestMethods[] = {
     {"settrace_to_record", settrace_to_record, METH_O, NULL},
     {"test_macros", test_macros, METH_NOARGS, NULL},
     {"clear_managed_dict", clear_managed_dict, METH_O, NULL},
+    {"bench1", bench1, METH_VARARGS, NULL},
+    {"bench2", bench2, METH_VARARGS, NULL},
+    {"bench3", bench3, METH_VARARGS, NULL},
     {NULL, NULL} /* sentinel */
 };
 
