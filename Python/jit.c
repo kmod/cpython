@@ -269,11 +269,6 @@ struct PerfMapEntry {
 
 static int jit_use_aot = 1, jit_use_ics = 1;
 
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION <= 8
-static PyObject* cmp_outcomePyCmp_BAD(PyObject *v, PyObject *w) {
-  return cmp_outcome(NULL, PyCmp_BAD, v, w);
-}
-#endif
 PyObject* cmp_outcomePyCmp_EXC_MATCH(PyObject *v, PyObject *w);
 
 int eval_breaker_jit_helper();
@@ -287,24 +282,6 @@ PyObject * import_from(PyThreadState *, PyObject *, PyObject *);
 void format_exc_unbound(PyThreadState *tstate, PyCodeObject *co, int oparg);
 
 
-#ifdef PYSTON_LITE
-void* lookdict_split_value;
-#define lookdict_split lookdict_split_value
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 8
-static void* method_vectorcall_NOARGS_value;
-static void* method_vectorcall_O_value;
-static void* method_vectorcall_FASTCALL_value;
-static void* method_vectorcall_FASTCALL_KEYWORDS_value;
-static void* method_vectorcall_VARARGS_value;
-static void* method_vectorcall_VARARGS_KEYWORDS_value;
-#define method_vectorcall_NOARGS method_vectorcall_NOARGS_value
-#define method_vectorcall_O method_vectorcall_O_value
-#define method_vectorcall_FASTCALL method_vectorcall_FASTCALL_value
-#define method_vectorcall_FASTCALL_KEYWORDS method_vectorcall_FASTCALL_KEYWORDS_value
-#define method_vectorcall_VARARGS method_vectorcall_VARARGS_value
-#define method_vectorcall_VARARGS_KEYWORDS method_vectorcall_VARARGS_KEYWORDS_value
-#endif
-#else
 Py_ssize_t lookdict_split(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject **value_addr);
 PyObject * method_vectorcall_NOARGS(PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 PyObject * method_vectorcall_O(PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
@@ -312,7 +289,7 @@ PyObject * method_vectorcall_FASTCALL(PyObject *func, PyObject *const *args, siz
 PyObject * method_vectorcall_FASTCALL_KEYWORDS(PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 PyObject * method_vectorcall_VARARGS(PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 PyObject * method_vectorcall_VARARGS_KEYWORDS(PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
-#endif
+
 PyObject* PySlice_NewSteal(PyObject *start, PyObject *stop, PyObject *step);
 
 static void decref_array(PyObject** vec, int n) {

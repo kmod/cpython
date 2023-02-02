@@ -6,8 +6,6 @@ extern "C" {
 
 #include "Python.h"
 
-#if PYSTON_SPEEDUPS
-
 #define JIT_HELPER(name) PyObject* JIT_HELPER_##name(int _not_set)
 #define JIT_HELPER1(name, py1) PyObject* JIT_HELPER_##name(int _not_set, PyObject* py1)
 #define JIT_HELPER2(name, py1, py2) PyObject* JIT_HELPER_##name(int _not_set, PyObject* py1, PyObject* py2)
@@ -142,8 +140,6 @@ JIT_HELPER1(MATCH_SEQUENCE, subject);
 JIT_HELPER(MATCH_KEYS);
 JIT_HELPER(COPY_DICT_WITHOUT_KEYS);
 JIT_HELPER_WITH_OPARG(ROT_N);
-#endif
-
 #endif
 
 #ifdef __cplusplus
