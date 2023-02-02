@@ -57,18 +57,28 @@
 
 #define PY_LOCAL_AGGRESSIVE
 
-#include "../../Python/aot_ceval_includes.h"
+#include "Python.h"
 
-#ifdef PYSTON_LITE
-// Use the cpython version of this file:
-#include "dict-common.h"
-#else
-#include "../Objects/dict-common.h"
-#endif
+#include "pycore_ceval.h"
 
-#ifdef PYSTON_LITE
+#include "pycore_code.h"
+#include "pycore_object.h"
+#include "pycore_pyerrors.h"
+#include "pycore_pylifecycle.h"
+#include "pycore_pystate.h"
+#include "pycore_tuple.h"
+
+#include "cpython/code.h"
+#include "dictobject.h"
+#include "frameobject.h"
+#include "opcode.h"
+#include "pydtrace.h"
+#include "setobject.h"
+#include "structmember.h"
+
+//#include "../Objects/dict-common.h"
+
 #define IS_IMMORTAL(x) (0)
-#endif
 
 // enable runtime checks to catch jit compiler bugs
 //#define JIT_DEBUG 1
@@ -89,11 +99,7 @@
 #define JIT_ASSERT(x, m, ...) assert(x)
 #endif
 
-#ifdef PYSTON_LITE
 #define ENABLE_DEFINED_TRACKING 0
-#else
-#define ENABLE_DEFINED_TRACKING 1
-#endif
 
 #define DEFERRED_VS_MAX         16 /* used by STORE_SUBSCR */
 
@@ -234,7 +240,6 @@ typedef struct Jit {
 #include <sys/mman.h>
 #include <ctype.h>
 
-#ifdef PYSTON_LITE
 PyObject* cmp_outcome(PyThreadState *tstate, int, PyObject *v, PyObject *w);
 PyObject* PyNumber_PowerNone(PyObject *v, PyObject *w);
 PyObject* PyNumber_InPlacePowerNone(PyObject *v, PyObject *w);
@@ -247,20 +252,11 @@ PyObject* cmp_outcomePyCmp_GE(PyObject *v, PyObject *w);
 PyObject* cmp_outcomePyCmp_IN(PyObject *v, PyObject *w);
 PyObject* cmp_outcomePyCmp_NOT_IN(PyObject *v, PyObject *w);
 
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION <= 9
-PyObject* call_function_ceval_no_kw(PyThreadState *tstate, PyObject **stack, Py_ssize_t oparg);
-PyObject* call_function_ceval_kw(PyThreadState *tstate, PyObject **stack, Py_ssize_t oparg, PyObject* kwnames);
-PyObject* call_function_ceval_no_kwProfile(PyThreadState * tstate, PyObject ** restrict stack, Py_ssize_t oparg);
-#else
 PyObject* call_function_ceval_no_kw(PyThreadState *tstate, PyTraceInfo* trace_info, PyObject **stack, Py_ssize_t oparg);
 PyObject* call_function_ceval_kw(PyThreadState *tstate, PyTraceInfo* trace_info, PyObject **stack, Py_ssize_t oparg, PyObject* kwnames);
 PyObject* call_function_ceval_no_kwProfile(PyThreadState * tstate, PyTraceInfo* trace_info, PyObject ** restrict stack, Py_ssize_t oparg);
-#endif
 
-#else
-#include "aot.h"
-#endif
-#include "aot_ceval_jit_helper.h"
+#include "jit_helper.h"
 
 // used if JIT_PERF_MAP is enabled
 static FILE *perf_map_file = NULL, *perf_map_opcode_map = NULL;

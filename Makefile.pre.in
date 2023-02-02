@@ -393,6 +393,7 @@ PYTHON_OBJS=	\
 		Python/importdl.o \
 		Python/initconfig.o \
 		Python/intrinsics.o \
+		Python/jit.o \
 		Python/marshal.o \
 		Python/modsupport.o \
 		Python/mysnprintf.o \
@@ -1469,6 +1470,15 @@ Python/ceval.o: \
 		$(srcdir)/Python/generated_cases.c.h \
 		$(srcdir)/Python/opcode_metadata.h \
 		$(srcdir)/Python/opcode_targets.h
+
+Python/jit.prep.c: $(srcdir)/Python/jit.c
+	$(srcdir)/Tools/dynasm_preprocess.py $< $@
+
+Python/jit.gen.c: Python/jit.prep.c
+	luajit ~/pyston/pyston/LuaJIT/dynasm/dynasm.lua -o Python/jit.gen.c Python/jit.prep.c
+
+Python/jit.o: Python/jit.gen.c
+	$(CC) -c $(PY_CORE_CFLAGS) -I/home/kmod/pyston/pyston/LuaJIT/ $< -o $@ -I$(srcdir)/Python
 
 Python/frozen.o: $(FROZEN_FILES_OUT)
 
