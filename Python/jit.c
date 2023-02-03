@@ -177,7 +177,6 @@ typedef struct Jit {
     char failed;
 
     PyCodeObject* co;
-    OpCache* opcache;
     PyObject* co_consts;
     PyObject* co_names;
 
@@ -316,7 +315,7 @@ static void* __attribute__ ((const)) get_addr_of_helper_func(int opcode, int opa
         JIT_HELPER_ADDR(GET_AITER);
         JIT_HELPER_ADDR(GET_ANEXT);
         JIT_HELPER_ADDR(GET_AWAITABLE);
-        JIT_HELPER_ADDR(YIELD_FROM);
+        JIT_HELPER_ADDR(SEND);
         JIT_HELPER_ADDR(POP_EXCEPT);
         JIT_HELPER_ADDR(LOAD_BUILD_CLASS);
         JIT_HELPER_ADDR(STORE_NAME);
@@ -366,8 +365,6 @@ static void* __attribute__ ((const)) get_addr_of_helper_func(int opcode, int opa
         JIT_HELPER_ADDR(MATCH_MAPPING);
         JIT_HELPER_ADDR(MATCH_SEQUENCE);
         JIT_HELPER_ADDR(MATCH_KEYS);
-        JIT_HELPER_ADDR(COPY_DICT_WITHOUT_KEYS);
-        JIT_HELPER_ADDR(ROT_N);
 #endif
 
         case UNPACK_SEQUENCE:
@@ -391,13 +388,9 @@ static void* __attribute__ ((const)) get_addr_of_helper_func(int opcode, int opa
 static void* __attribute__ ((const)) get_addr_of_aot_func(int opcode, int oparg, int opcache_available) {
     #define OPCODE_STATIC(x, func) if (opcode == x) return (func)
     #define _OPCODE_PROFILE(x, func) OPCODE_STATIC(x, jit_use_aot ? func##Profile : func)
-#ifdef PYSTON_LITE
+
     #define OPCODE_PROFILE(x, func) OPCODE_STATIC(x, func)
     #define OPCODE_PROFILE_LITE(x, func) _OPCODE_PROFILE(x, func)
-#else
-    #define OPCODE_PROFILE(x, func) _OPCODE_PROFILE(x, func)
-    #define OPCODE_PROFILE_LITE(x, func) _OPCODE_PROFILE(x, func)
-#endif
 
     OPCODE_PROFILE(UNARY_POSITIVE, PyNumber_Positive);
     OPCODE_PROFILE(UNARY_NEGATIVE, PyNumber_Negative);
@@ -406,36 +399,6 @@ static void* __attribute__ ((const)) get_addr_of_aot_func(int opcode, int oparg,
     OPCODE_PROFILE(UNARY_NOT, PyObject_IsTrue);
 
     OPCODE_PROFILE(GET_ITER, PyObject_GetIter);
-
-    OPCODE_PROFILE(BINARY_MULTIPLY, PyNumber_Multiply);
-    OPCODE_PROFILE(BINARY_MATRIX_MULTIPLY, PyNumber_MatrixMultiply);
-    OPCODE_PROFILE(BINARY_TRUE_DIVIDE, PyNumber_TrueDivide);
-    OPCODE_PROFILE(BINARY_FLOOR_DIVIDE, PyNumber_FloorDivide);
-    OPCODE_PROFILE(BINARY_MODULO, PyNumber_Remainder);
-    OPCODE_PROFILE(BINARY_ADD, PyNumber_Add);
-    OPCODE_PROFILE(BINARY_SUBTRACT, PyNumber_Subtract);
-    OPCODE_PROFILE(BINARY_LSHIFT, PyNumber_Lshift);
-    OPCODE_PROFILE(BINARY_RSHIFT, PyNumber_Rshift);
-    OPCODE_PROFILE(BINARY_AND, PyNumber_And);
-    OPCODE_PROFILE(BINARY_XOR, PyNumber_Xor);
-    OPCODE_PROFILE(BINARY_OR, PyNumber_Or);
-
-    OPCODE_PROFILE(INPLACE_MULTIPLY, PyNumber_InPlaceMultiply);
-    OPCODE_PROFILE(INPLACE_MATRIX_MULTIPLY, PyNumber_InPlaceMatrixMultiply);
-    OPCODE_PROFILE(INPLACE_TRUE_DIVIDE, PyNumber_InPlaceTrueDivide);
-    OPCODE_PROFILE(INPLACE_FLOOR_DIVIDE, PyNumber_InPlaceFloorDivide);
-    OPCODE_PROFILE(INPLACE_MODULO, PyNumber_InPlaceRemainder);
-    OPCODE_PROFILE(INPLACE_ADD, PyNumber_InPlaceAdd);
-    OPCODE_PROFILE(INPLACE_SUBTRACT, PyNumber_InPlaceSubtract);
-    OPCODE_PROFILE(INPLACE_LSHIFT, PyNumber_InPlaceLshift);
-    OPCODE_PROFILE(INPLACE_RSHIFT, PyNumber_InPlaceRshift);
-    OPCODE_PROFILE(INPLACE_AND, PyNumber_InPlaceAnd);
-    OPCODE_PROFILE(INPLACE_XOR, PyNumber_InPlaceXor);
-    OPCODE_PROFILE(INPLACE_OR, PyNumber_InPlaceOr);
-
-    // the normaly have 3 args but we created special versions because last is always None
-    OPCODE_PROFILE(BINARY_POWER, PyNumber_PowerNone);
-    OPCODE_PROFILE(INPLACE_POWER, PyNumber_InPlacePowerNone);
 
     OPCODE_PROFILE_LITE(CALL_FUNCTION, call_function_ceval_no_kw);
     OPCODE_PROFILE_LITE(CALL_METHOD, call_function_ceval_no_kw);
@@ -456,44 +419,12 @@ static void* __attribute__ ((const)) get_addr_of_aot_func(int opcode, int oparg,
         OPCODE_STATIC(LOAD_METHOD, JIT_HELPER_LOAD_METHOD);
     }
 
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION <= 8
-    if (opcode == COMPARE_OP) {
-#ifndef PYSTON_LITE
-        if (jit_use_aot) {
-            switch (oparg) {
-            case PyCmp_LT: return cmp_outcomePyCmp_LTProfile;
-            case PyCmp_LE: return cmp_outcomePyCmp_LEProfile;
-            case PyCmp_EQ: return cmp_outcomePyCmp_EQProfile;
-            case PyCmp_NE: return cmp_outcomePyCmp_NEProfile;
-            case PyCmp_GT: return cmp_outcomePyCmp_GTProfile;
-            case PyCmp_GE: return cmp_outcomePyCmp_GEProfile;
-            case PyCmp_IN: return cmp_outcomePyCmp_INProfile;
-            case PyCmp_NOT_IN: return cmp_outcomePyCmp_NOT_INProfile;
-            }
-        }
-#endif
-
+    if (opcode == BINARY_OP) {
         switch (oparg) {
-        case PyCmp_LT: return cmp_outcomePyCmp_LT;
-        case PyCmp_LE: return cmp_outcomePyCmp_LE;
-        case PyCmp_EQ: return cmp_outcomePyCmp_EQ;
-        case PyCmp_NE: return cmp_outcomePyCmp_NE;
-        case PyCmp_GT: return cmp_outcomePyCmp_GT;
-        case PyCmp_GE: return cmp_outcomePyCmp_GE;
-        case PyCmp_IN: return cmp_outcomePyCmp_IN;
-        case PyCmp_NOT_IN: return cmp_outcomePyCmp_NOT_IN;
-
-        // we don't create type specific version for those so use non Profile final versions
-        case PyCmp_BAD: return cmp_outcomePyCmp_BAD;
-        case PyCmp_EXC_MATCH: return cmp_outcomePyCmp_EXC_MATCH;
-
-        case PyCmp_IS:
-        case PyCmp_IS_NOT:
-            printf("unreachable: PyCmp_IS and PyCmp_IS_NOT are inlined\n");
-            abort();
         }
+        abort();
     }
-#endif
+
 #undef OPCODE_STATIC
 #undef OPCODE_PROFILE
     printf("could not find aot func for opcode: %d oparg: %d\n", opcode, oparg);
@@ -507,8 +438,6 @@ static const char* get_opcode_name(int opcode) {
         OPCODE_NAME(POP_TOP);
         OPCODE_NAME(ROT_TWO);
         OPCODE_NAME(ROT_THREE);
-        OPCODE_NAME(DUP_TOP);
-        OPCODE_NAME(DUP_TOP_TWO);
         OPCODE_NAME(NOP);
         OPCODE_NAME(UNARY_POSITIVE);
         OPCODE_NAME(UNARY_NEGATIVE);
@@ -545,7 +474,7 @@ static const char* get_opcode_name(int opcode) {
         OPCODE_NAME(GET_YIELD_FROM_ITER);
         OPCODE_NAME(PRINT_EXPR);
         OPCODE_NAME(LOAD_BUILD_CLASS);
-        OPCODE_NAME(YIELD_FROM);
+        OPCODE_NAME(SEND);
         OPCODE_NAME(GET_AWAITABLE);
         OPCODE_NAME(INPLACE_LSHIFT);
         OPCODE_NAME(INPLACE_RSHIFT);
@@ -745,7 +674,7 @@ static char* calculate_jmp_targets(Jit* Dst) {
                 is_jmp_target[oparg/INST_IDX_TO_LASTI_FACTOR + inst_idx + 1] = 1;
                 break;
 
-            case YIELD_FROM:
+            case SEND:
                 is_jmp_target[inst_idx + 0] = 1;
                 is_jmp_target[inst_idx + 1] = 1;
                 break;
@@ -3479,8 +3408,6 @@ static void emit_instr_start(Jit* Dst, int inst_idx, int opcode, int oparg) {
         case ROT_FOUR:
 #endif
         case POP_TOP:
-        case DUP_TOP:
-        case DUP_TOP_TWO:
         case LOAD_CLOSURE:
         case LOAD_CONST:
             return;
@@ -3881,61 +3808,6 @@ void* jit_func(PyCodeObject* co, PyThreadState* tstate) {
                 emit_write_vs(Dst, arg3_idx, 2 /*=second*/);
                 emit_write_vs(Dst, arg1_idx, 3 /*=third*/);
                 emit_write_vs(Dst, res_idx, 1 /*=top*/);
-            }
-            break;
-
-#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 8
-        case ROT_FOUR:
-            if (Dst->deferred_vs_next >= 4) {
-                DeferredValueStackEntry tmp[4];
-                memcpy(tmp, &GET_DEFERRED[-4], sizeof(tmp));
-                GET_DEFERRED[-1] = tmp[2];
-                GET_DEFERRED[-2] = tmp[1];
-                GET_DEFERRED[-3] = tmp[0];
-                GET_DEFERRED[-4] = tmp[3];
-            } else {
-                deferred_vs_apply(Dst);
-                emit_read_vs(Dst, arg1_idx, 1 /*=top*/);
-                emit_read_vs(Dst, res_idx, 2 /*=second*/);
-                emit_read_vs(Dst, arg3_idx, 3 /*=third*/);
-                emit_read_vs(Dst, arg4_idx, 4 /*=fourth*/);
-                emit_write_vs(Dst, arg3_idx, 2 /*=second*/);
-                emit_write_vs(Dst, arg4_idx, 3 /*=third*/);
-                emit_write_vs(Dst, arg1_idx, 4 /*=fourth*/);
-                emit_write_vs(Dst, res_idx, 1 /*=top*/);
-            }
-            break;
-#endif
-
-        case DUP_TOP:
-            if (Dst->deferred_vs_next >= 1 && Dst->deferred_vs_next + 1 < DEFERRED_VS_MAX &&
-                (GET_DEFERRED[-1].loc == CONST || GET_DEFERRED[-1].loc == FAST)) {
-                GET_DEFERRED[0] = GET_DEFERRED[-1];
-                Dst->deferred_vs_next += 1;
-            } else {
-                deferred_vs_apply(Dst);
-                emit_read_vs(Dst, res_idx, 1 /*=top*/);
-                emit_incref(Dst, res_idx);
-                deferred_vs_push(Dst, REGISTER, res_idx);
-            }
-            break;
-
-        case DUP_TOP_TWO:
-            if (Dst->deferred_vs_next >= 2 && Dst->deferred_vs_next + 2 < DEFERRED_VS_MAX &&
-                (GET_DEFERRED[-1].loc == CONST || GET_DEFERRED[-1].loc == FAST) &&
-                (GET_DEFERRED[-2].loc == CONST || GET_DEFERRED[-2].loc == FAST)) {
-                GET_DEFERRED[0] = GET_DEFERRED[-2];
-                GET_DEFERRED[1] = GET_DEFERRED[-1];
-                Dst->deferred_vs_next += 2;
-            } else {
-                deferred_vs_apply(Dst);
-                emit_read_vs(Dst, arg1_idx, 1 /*=top*/);
-                emit_read_vs(Dst, arg2_idx, 2 /*=second*/);
-                emit_incref(Dst, arg1_idx);
-                emit_incref(Dst, arg2_idx);
-                emit_adjust_vs(Dst, 2);
-                emit_write_vs(Dst, arg1_idx, 1 /*=top*/);
-                emit_write_vs(Dst, arg2_idx, 2 /*=second*/);
             }
             break;
 

@@ -15,9 +15,9 @@ extern "C" {
 #define JIT_HELPER_WITH_OPARG3(name, py1, py2, py3) PyObject* JIT_HELPER_##name(int oparg, PyObject* py1, PyObject* py2, PyObject* py3)
 #define JIT_HELPER_WITH_NAME(name_) PyObject* JIT_HELPER_##name_(PyObject* name)
 #define JIT_HELPER_WITH_NAME1(name_, py1) PyObject* JIT_HELPER_##name_(PyObject* name, PyObject* py1)
-#define JIT_HELPER_WITH_NAME_OPCACHE_AOT(name_) PyObject* JIT_HELPER_##name_(PyObject* name, _PyOpcache *co_opcache)
-#define JIT_HELPER_WITH_NAME_OPCACHE_AOT1(name_, py1) PyObject* JIT_HELPER_##name_(PyObject* name, PyObject* py1, _PyOpcache *co_opcache)
-#define JIT_HELPER_WITH_NAME_OPCACHE_AOT2(name_, py1, py2) PyObject* JIT_HELPER_##name_(PyObject* name, PyObject* py1, PyObject* py2, _PyOpcache *co_opcache)
+#define JIT_HELPER_WITH_NAME_OPCACHE_AOT(name_) PyObject* JIT_HELPER_##name_(PyObject* name)
+#define JIT_HELPER_WITH_NAME_OPCACHE_AOT1(name_, py1) PyObject* JIT_HELPER_##name_(PyObject* name, PyObject* py1)
+#define JIT_HELPER_WITH_NAME_OPCACHE_AOT2(name_, py1, py2) PyObject* JIT_HELPER_##name_(PyObject* name, PyObject* py1, PyObject* py2)
 
 // on apple arm64 we can't have a writable and executable page at the same time.
 // instead the provide an api to quickly change the protection.
@@ -70,7 +70,7 @@ JIT_HELPER_WITH_OPARG(RAISE_VARARGS);
 JIT_HELPER1(GET_AITER, obj);
 JIT_HELPER(GET_ANEXT);
 JIT_HELPER1(GET_AWAITABLE, iterable);
-JIT_HELPER1(YIELD_FROM, v);
+JIT_HELPER1(SEND, v);
 JIT_HELPER(POP_EXCEPT);
 JIT_HELPER_WITH_OPARG(POP_FINALLY);
 JIT_HELPER1(END_ASYNC_FOR, exc);
@@ -138,8 +138,6 @@ JIT_HELPER_WITH_OPARG(MATCH_CLASS);
 JIT_HELPER1(MATCH_MAPPING, subject);
 JIT_HELPER1(MATCH_SEQUENCE, subject);
 JIT_HELPER(MATCH_KEYS);
-JIT_HELPER(COPY_DICT_WITHOUT_KEYS);
-JIT_HELPER_WITH_OPARG(ROT_N);
 #endif
 
 #ifdef __cplusplus
